@@ -5,19 +5,3 @@ fastPdist2 <- function(Ar, Br) {
     .Call(`_fastDist_fastPdist2`, Ar, Br)
 }
 
-rcpparma_hello_world <- function() {
-    .Call(`_fastDist_rcpparma_hello_world`)
-}
-
-rcpparma_outerproduct <- function(x) {
-    .Call(`_fastDist_rcpparma_outerproduct`, x)
-}
-
-rcpparma_innerproduct <- function(x) {
-    .Call(`_fastDist_rcpparma_innerproduct`, x)
-}
-
-rcpparma_bothproducts <- function(x) {
-    .Call(`_fastDist_rcpparma_bothproducts`, x)
-}
-
