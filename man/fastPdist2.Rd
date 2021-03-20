@@ -1,46 +1,33 @@
 \name{fastPDist2}
 \alias{fastPDist2}
 
-\title{Set of functions in example RcppArmadillo package}
+\title{Función para el cálculo de distancias euclídeas entre las filas de dos matrices}
 \description{
-  These four functions are created when
-  \code{RcppArmadillo.package.skeleton()} is invoked to create a
-  skeleton packages.
+  Función para el cálculo de distancias euclídeas entre las filas de dos matrices
 }
 \usage{
 fastPDist2(A, B)
 }
 \arguments{
-  \item{A}{a numeric matrix}
-  \item{B}{a numeric matrix}
+  \item{A}{matriz numérica de dimensiones \code{(m, k)} }
+  \item{B}{matriz numérica de dimensiones \code{(n, k)} } 
 }
 \value{
-  \code{rcpparma_hello_world()} does not return a value, but displays a
-  message to the console.
-
-  \code{rcpparma_outerproduct()} returns a numeric matrix computed as the
-  outer (vector) product of \code{x}.
-
-  \code{rcpparma_innerproduct()} returns a double computer as the inner
-  (vector) product of \code{x}.
-
-  \code{rcpparma_bothproducts()} returns a list with both the outer and
-  inner products.
-  
+  Una matriz de dimensiones \code{(m, n)} donde el valor de \code{(i, j)} es la distancia euclídea entre la fila   \code{i} de la matriz \code{A} y la fila \code{j} de la matriz \code{B} 
 }
 \details{
-  These are example functions which should be largely
-  self-explanatory. Their main benefit is to demonstrate how to write a
-  function using the Armadillo C++ classes, and to have to such a
-  function accessible from R.
+  La distancia euclidea entre dos vectores $x$ e $y$ se define como
+  \deqn{||x-y||_2 = (\sum_{i=1}^k (x_i - y_i)^2)^{1/2} }
+  se usa la propiedad \eqn{(x - y)^2 = x^2 -2xy + y^2} para acelerar el cálculo
+  
 }
 \references{
   See the documentation for Armadillo, and RcppArmadillo, for more details.
 }
 \examples{
-  A <- matrix(rnorm(9), 3, 3)
-  B <- matrix(rnorm(9), 3, 3)
+  A <- matrix(rnorm(5000), 500, 10)
+  B <- matrix(rnorm(1000), 100, 10)
   fastPdist2(A, B)
 }
-\author{Dirk Eddelbuettel}
+\author{Vicente Castellar Sebastiá}
 

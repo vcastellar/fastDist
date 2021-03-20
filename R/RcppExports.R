@@ -5,3 +5,7 @@ fastPdist2 <- function(Ar, Br) {
     .Call(`_fastDist_fastPdist2`, Ar, Br)
 }
 
+fastPdist1 <- function(Ar, Br) {
+    .Call(`_fastDist_fastPdist1`, Ar, Br)
+}
+
