@@ -1,5 +1,5 @@
-\name{fastPDist2}
-\alias{fastPDist2}
+\name{fastPdist2}
+\alias{fastPdist2}
 
 \title{Función para el cálculo de distancias euclídeas entre las filas de dos matrices}
 \description{

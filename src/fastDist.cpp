@@ -21,24 +21,24 @@ NumericMatrix fastPdist2(NumericMatrix Ar, NumericMatrix Br) {
   return wrap(sqrt(C)); 
 }
 
-
 // [[Rcpp::export]]
-double manhattan(NumericVector Ur, NumericVector Vr) {
-  int m = Ur.length(), 
-      n = Vr.length();
-  if (m != n) {
-    return m;
-  } else {
-    int l = m;
+NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(), 
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false); 
+  arma::mat B = arma::mat(Br.begin(), n, k, false); 
+  arma::mat C = arma::mat(m, n, arma::fill::zeros);
+  
+  for (int i = 0; i < m; i++) {
+    for (int j = 0; j < n; j++) {
+      arma::mat aux = abs(A.row(i) - B.row(j));
+      arma::vec res = aux.t();
+      
+      C(i, j) = sum(res);
+    }
   }
-  
-  arma::vec U = arma::vec(Ur.begin(), m, false); 
-  arma::vec V = arma::vec(Vr.begin(), n, false); 
-  
-  arma::vec res = abs(U - V);
-  
-  res = sum(res);
-
-  return res(0); 
+  return wrap(C); 
 }
+
 
