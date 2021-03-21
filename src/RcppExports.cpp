@@ -6,15 +6,15 @@
 
 using namespace Rcpp;
 
-// fastPdist2
-NumericMatrix fastPdist2(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_fastPdist2(SEXP ArSEXP, SEXP BrSEXP) {
+// euclidean
+NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_euclidean(SEXP ArSEXP, SEXP BrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(fastPdist2(Ar, Br));
+    rcpp_result_gen = Rcpp::wrap(euclidean(Ar, Br));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -32,7 +32,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fastDist_fastPdist2", (DL_FUNC) &_fastDist_fastPdist2, 2},
+    {"_fastDist_euclidean", (DL_FUNC) &_fastDist_euclidean, 2},
     {"_fastDist_manhattan", (DL_FUNC) &_fastDist_manhattan, 2},
     {NULL, NULL, 0}
 };

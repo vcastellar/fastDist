@@ -4,7 +4,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericMatrix fastPdist2(NumericMatrix Ar, NumericMatrix Br) {
+NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(), 
       n = Br.nrow(),
       k = Ar.ncol();
