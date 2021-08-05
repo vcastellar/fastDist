@@ -9,3 +9,7 @@ manhattan <- function(Ar, Br) {
     .Call(`_fastDist_manhattan`, Ar, Br)
 }
 
+minkowsky <- function(Ar, Br, p) {
+    .Call(`_fastDist_minkowsky`, Ar, Br, p)
+}
+

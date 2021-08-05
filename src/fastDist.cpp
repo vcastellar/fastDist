@@ -1,4 +1,6 @@
 #include <RcppArmadillo.h>
+#include <Rmath.h>
+
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp;
@@ -24,18 +26,39 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
 // [[Rcpp::export]]
 NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(), 
-    n = Br.nrow(),
-    k = Ar.ncol();
+      n = Br.nrow(),
+      k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false); 
+  arma::mat B = arma::mat(Br.begin(), n, k, false); 
+  arma::mat C = arma::mat(Ar.begin(), m, k, false);
+  arma::mat res = arma::mat(m, m, arma::fill::zeros);
+  
+  for (int i = 0; i < m; i++) {
+    C.each_row() -= B.row(i);
+    res.col(i) = sum(abs(C), 1);
+  }
+
+  return wrap(res); 
+}
+
+// [[Rcpp::export]]
+NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, int p) {
+  int m = Ar.nrow(), 
+      n = Br.nrow(),
+      k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
   arma::mat B = arma::mat(Br.begin(), n, k, false); 
   arma::mat C = arma::mat(m, n, arma::fill::zeros);
   
+  double q = 1.0 / p;
+  
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < n; j++) {
-      arma::mat aux = abs(A.row(i) - B.row(j));
-      arma::vec res = aux.t();
+      arma::mat aux = pow(abs(A.row(i) - B.row(j)), p);
       
-      C(i, j) = sum(res);
+      arma::vec res = aux.t();
+      C(i, j) = pow(sum(res), q);
+
     }
   }
   return wrap(C); 
