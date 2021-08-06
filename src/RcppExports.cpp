@@ -36,14 +36,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // minkowsky
-NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, int p);
+NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, double p);
 RcppExport SEXP _fastDist_minkowsky(SEXP ArSEXP, SEXP BrSEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
     rcpp_result_gen = Rcpp::wrap(minkowsky(Ar, Br, p));
     return rcpp_result_gen;
 END_RCPP

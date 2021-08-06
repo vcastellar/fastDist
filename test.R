@@ -2,8 +2,6 @@ library(proxy)
 library(fastDist)
 
 A <- matrix(rnorm(50), 5, 10)
-B <- matrix(rnorm(500000), 5000, 100)
-
 fastDist::euclidean(A, A)
 proxy::dist(A, A, method = "Euclidean")
 
@@ -14,23 +12,61 @@ fastDist::minkowsky(A, A, p = 5)
 proxy::dist(A, A, method = "Minkowski", p = 5)
 
 
+# benchmark
+#------------------------------------------------------------------------------
+B <- matrix(rnorm(100000), 1000, 100)
 
-system.time({
-  fastDist::euclidean(B, B)
-})
-system.time({
-  proxy::dist(B, B, method = "Euclidean")
-})
-system.time({
-  fastDist::manhattan(B, B)
-})
-system.time({
-  proxy::dist(B, B, method = "Manhattan")
-})
-system.time({
-  fastDist::minkowsky(B, B, 5)
-})
-system.time({
-  proxy::dist(B, B, method = "Minkowski", p = 5)
-})
+rows <- seq(10, 100, 10) * 1e2
+cols <- 100
+
+
+resultados = data.frame(method = character(),
+                        package = character(),
+                        nrow = integer(),
+                        ncol = integer(),
+                        t = numeric())
+
+for (row in rows) {
+  B <- matrix(rnorm(row * cols), row, cols)
+  
+  res <- system.time({
+    fastDist::euclidean(B, B)
+  })
+  fila <- data.frame(method = "Euclidean", package = "fastDist", nrow = row, ncol = 100, t = res[3])
+  resultados <- rbind(resultados, fila)
+  
+  res <- system.time({
+    proxy::dist(B, B, method = "Euclidean")
+  })
+  fila <- data.frame(method = "Euclidean", package = "proxy", nrow = row, ncol = 100, t = res[3])
+  resultados <- rbind(resultados, fila)
+  
+  res <- system.time({
+    fastDist::manhattan(B, B)
+  })
+  fila <- data.frame(method = "Manhattan", package = "fastDist", nrow = row, ncol = 100, t = res[3])
+  resultados <- rbind(resultados, fila)
+  
+  
+  res <- system.time({
+    proxy::dist(B, B, method = "Manhattan")
+  })
+  fila <- data.frame(method = "Manhattan", package = "proxy", nrow = row, ncol = 100, t = res[3])
+  resultados <- rbind(resultados, fila)
+  
+  res <- system.time({
+    fastDist::minkowsky(B, B, 5)
+  })
+  fila <- data.frame(method = "Minkowsky", package = "fastDist", nrow = row, ncol = 100, t = res[3])
+  resultados <- rbind(resultados, fila)
+  
+  res <- system.time({
+    proxy::dist(B, B, method = "Minkowski", p = 5)
+  })
+  fila <- data.frame(method = "Minkowsky", package = "proxy", nrow = row, ncol = 100, t = res[3])
+  resultados <- rbind(resultados, fila)
+  print(resultados)
+}
+
+
 

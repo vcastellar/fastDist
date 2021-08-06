@@ -42,26 +42,23 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 // [[Rcpp::export]]
-NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, int p) {
+NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, double p) {
   int m = Ar.nrow(), 
       n = Br.nrow(),
       k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
   arma::mat B = arma::mat(Br.begin(), n, k, false); 
-  arma::mat C = arma::mat(m, n, arma::fill::zeros);
-  
+  arma::mat res = arma::mat(m, m, arma::fill::zeros);
+
   double q = 1.0 / p;
   
+  
   for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n; j++) {
-      arma::mat aux = pow(abs(A.row(i) - B.row(j)), p);
-      
-      arma::vec res = aux.t();
-      C(i, j) = pow(sum(res), q);
-
-    }
+    A.each_row() -= B.row(i);
+    res.col(i) = sum(pow(abs(A), p), 1);
   }
-  return wrap(C); 
+  
+  return wrap(pow(res, q)); 
 }
 
 
