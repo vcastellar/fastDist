@@ -68,5 +68,9 @@ for (row in rows) {
   print(resultados)
 }
 
-
-
+library(ggplot2)
+png(filename = "test.png", width = 1200, height = 500)
+ggplot(resultados, aes(nrow, t, color = package)) + 
+  geom_point() + geom_line() +
+  facet_wrap(. ~ method, scales = "free")
+dev.off()
