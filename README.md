@@ -3,6 +3,7 @@ calculo rápido de distancias entre filas de dos matrices
 
 # benchmark
            | expr |    | min |     | lq |   | mean | | median |     | uq |   | max | | neval |
+           |---   |    |---  |     |--- |   |---   | |---     |     |--- |   |---  | |---    |
  |fastDist_euclidean|   |79.92418|   |85.66241|   |93.03568|   |90.13945|   |96.71315|  |179.1589|   |100|
     |proxy_euclidean|  |196.35367|  |200.07790|  |212.72639|  |204.49260|  |215.31226|  |325.3437|   |100|
  |fastDist_manhattan|  |132.54304|  |138.07719|  |1143.40045|  |141.14112|  |145.63924|  |198.4304|   |100|
