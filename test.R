@@ -1,5 +1,7 @@
 library(proxy)
 library(fastDist)
+library(microbenchmark)
+library(ggplot2)
 
 A <- matrix(rnorm(50), 5, 10)
 fastDist::euclidean(A, A)
@@ -19,6 +21,15 @@ B <- matrix(rnorm(100000), 1000, 100)
 rows <- seq(10, 100, 10) * 1e2
 cols <- 100
 
+res <- microbenchmark(
+  fastDist_euclidean = euclidean(B, B),
+  proxy_euclidean    = dist(B, B, method = "Euclidean"),
+  fastDist_manhattan = manhattan(B, B),
+  proxy_manhattan    = dist(B, B, method = "Manhattan"),
+  fastDist_minkowsky = minkowsky(B, B, p = 5),
+  proxy_minkowsky    = dist(B, B, method = "Minkowski", p = 5)
+)
+autoplot(res)
 
 resultados = data.frame(method = character(),
                         package = character(),
