@@ -4,6 +4,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp;
+using namespace RcppArmadillo;
 
 // distancia euclidea
 // [[Rcpp::export]]

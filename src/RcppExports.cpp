@@ -6,11 +6,6 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
-
 // euclidean
 NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br);
 RcppExport SEXP _fastDist_euclidean(SEXP ArSEXP, SEXP BrSEXP) {
