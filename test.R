@@ -4,13 +4,13 @@ library(microbenchmark)
 library(ggplot2)
 
 A <- matrix(rnorm(50), 5, 10)
-fastDist::euclidean(A, A)
+fdist(A, A, method = "euclidean")
 proxy::dist(A, A, method = "Euclidean")
 
-fastDist::manhattan(A, A)
+fdist(A, A, method = "manhattan")
 proxy::dist(A, A, method = "Manhattan")
 
-fastDist::minkowsky(A, A, p = 5)
+fdist(A, A, p = 5, method = "minkowski")
 proxy::dist(A, A, method = "Minkowski", p = 5)
 
 
@@ -18,15 +18,15 @@ proxy::dist(A, A, method = "Minkowski", p = 5)
 #------------------------------------------------------------------------------
 B <- matrix(rnorm(100000), 1000, 100)
 
-rows <- seq(10, 100, 10) * 1e2
+rows <- seq(100, 100, 20) * 1e2
 cols <- 100
 
 res <- microbenchmark(
-  fastDist_euclidean = euclidean(B, B),
+  fastDist_euclidean = fdist(B, B, method = "euclidean"),
   proxy_euclidean    = dist(B, B, method = "Euclidean"),
-  fastDist_manhattan = manhattan(B, B),
+  fastDist_manhattan = fdist(B, B, method = "manhattan"),
   proxy_manhattan    = dist(B, B, method = "Manhattan"),
-  fastDist_minkowsky = minkowsky(B, B, p = 5),
+  fastDist_minkowsky = fdist(B, B, p = 5, method = "minkowski"),
   proxy_minkowsky    = dist(B, B, method = "Minkowski", p = 5)
 )
 autoplot(res)
@@ -40,42 +40,30 @@ resultados = data.frame(method = character(),
 for (row in rows) {
   B <- matrix(rnorm(row * cols), row, cols)
   
-  res <- system.time({
-    fastDist::euclidean(B, B)
-  })
-  fila <- data.frame(method = "Euclidean", package = "fastDist", nrow = row, ncol = 100, t = res[3])
+  res <- microbenchmark(fdist(B, B, method = "euclidean"), times = 10, unit = "seconds")
+  fila <- data.frame(method = "Euclidean", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
   resultados <- rbind(resultados, fila)
   
-  res <- system.time({
-    proxy::dist(B, B, method = "Euclidean")
-  })
-  fila <- data.frame(method = "Euclidean", package = "proxy", nrow = row, ncol = 100, t = res[3])
+  res <- microbenchmark(proxy::dist(B, B, method = "Euclidean") ,times = 10, unit = "seconds")
+  fila <- data.frame(method = "Euclidean", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
   resultados <- rbind(resultados, fila)
   
-  res <- system.time({
-    fastDist::manhattan(B, B)
-  })
-  fila <- data.frame(method = "Manhattan", package = "fastDist", nrow = row, ncol = 100, t = res[3])
+  res <- microbenchmark(fdist(B, B, method = "manhattan"), times = 10, unit = "seconds")
+  fila <- data.frame(method = "Manhattan", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
   resultados <- rbind(resultados, fila)
   
-  
-  res <- system.time({
-    proxy::dist(B, B, method = "Manhattan")
-  })
-  fila <- data.frame(method = "Manhattan", package = "proxy", nrow = row, ncol = 100, t = res[3])
+  res <- microbenchmark(proxy::dist(B, B, method = "Manhattan") ,times = 10, unit = "seconds")
+  fila <- data.frame(method = "Manhattan", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
   resultados <- rbind(resultados, fila)
   
-  res <- system.time({
-    fastDist::minkowsky(B, B, 5)
-  })
-  fila <- data.frame(method = "Minkowsky", package = "fastDist", nrow = row, ncol = 100, t = res[3])
+  res <- microbenchmark(fdist(B, B, method = "minkowski", p = 5), times = 10, unit = "seconds")
+  fila <- data.frame(method = "Minkowski", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
   resultados <- rbind(resultados, fila)
   
-  res <- system.time({
-    proxy::dist(B, B, method = "Minkowski", p = 5)
-  })
-  fila <- data.frame(method = "Minkowsky", package = "proxy", nrow = row, ncol = 100, t = res[3])
+  res <- microbenchmark(proxy::dist(B, B, method = "Minkowski", p = 5) ,times = 10, unit = "seconds")
+  fila <- data.frame(method = "Minkowski", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
   resultados <- rbind(resultados, fila)
+  
   print(resultados)
 }
 
@@ -85,3 +73,6 @@ ggplot(resultados, aes(nrow, t, color = package)) +
   geom_point() + geom_line() +
   facet_wrap(. ~ method, scales = "free")
 dev.off()
+
+
+
