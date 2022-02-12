@@ -35,16 +35,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// minkowsky
-NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, double p);
-RcppExport SEXP _fastDist_minkowsky(SEXP ArSEXP, SEXP BrSEXP, SEXP pSEXP) {
+// minkowski
+NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p);
+RcppExport SEXP _fastDist_minkowski(SEXP ArSEXP, SEXP BrSEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    rcpp_result_gen = Rcpp::wrap(minkowsky(Ar, Br, p));
+    rcpp_result_gen = Rcpp::wrap(minkowski(Ar, Br, p));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -52,7 +52,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_euclidean", (DL_FUNC) &_fastDist_euclidean, 2},
     {"_fastDist_manhattan", (DL_FUNC) &_fastDist_manhattan, 2},
-    {"_fastDist_minkowsky", (DL_FUNC) &_fastDist_minkowsky, 3},
+    {"_fastDist_minkowski", (DL_FUNC) &_fastDist_minkowski, 3},
     {NULL, NULL, 0}
 };
 

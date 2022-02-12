@@ -46,7 +46,7 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
 
 // distancia de minkowsky
 // [[Rcpp::export]]
-NumericMatrix minkowsky(NumericMatrix Ar, NumericMatrix Br, double p) {
+NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
   int m = Ar.nrow(), 
       n = Br.nrow(),
       k = Ar.ncol();
