@@ -1,8 +1,8 @@
 # fastDist
-cálculo rápido de distancias entre filas de dos matrices
+Cálculo rápido de distancias entre filas de dos matrices
 
 # benchmark
-Distancias entre filas de una matriz de dimensiones 1000x100
+Tiempo (segundos) de cálculo de distancias entre filas de una matriz de dimensiones 1000x100. Comparación de diferentes métodos entre el paquete fastDist y el proxy. Para el test, se usa el paquete microbenchmark.
 
 |               expr|        min|         lq|       mean|     median|        uq|       max| neval|
 |---                |---        |---        |---        |---        |---       |---       |---   |
