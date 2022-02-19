@@ -7,7 +7,7 @@ using namespace Rcpp;
 using namespace RcppArmadillo;
 
 // distancia euclidea
-// [[Rcpp::export]]
+// [[Rcpp::export(.euclidean)]]
 NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(), 
       n = Br.nrow(),
@@ -26,7 +26,7 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 // distancia de manhattan
-// [[Rcpp::export]]
+// [[Rcpp::export(.manhattan)]]
 NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(), 
       n = Br.nrow(),
@@ -45,7 +45,7 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
 
 
 // distancia de minkowsky
-// [[Rcpp::export]]
+// [[Rcpp::export(.minkowski)]]
 NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
   int m = Ar.nrow(), 
       n = Br.nrow(),

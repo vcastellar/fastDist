@@ -4,16 +4,25 @@ library(microbenchmark)
 library(ggplot2)
 
 A <- matrix(rnorm(50), 5, 10)
-fdist(A, A, method = "euclidean")
-proxy::dist(A, A, method = "Euclidean")
+B <- matrix(rnorm(50), 5, 10)
 
-fdist(A, A, method = "manhattan")
-proxy::dist(A, A, method = "Manhattan")
+fdist(A, method = "euclidean")
+proxy::dist(A,  method = "Euclidean")
 
-fdist(A, A, p = 5, method = "minkowski")
-proxy::dist(A, A, method = "Minkowski", p = 5)
+fdist(A, method = "manhattan")
+proxy::dist(A, method = "Manhattan")
 
+fdist(A, p = 5, method = "minkowski")
+proxy::dist(A,  method = "Minkowski", p = 5)
 
+data(mtcars)
+fdist(mtcars, method = "euclidean")
+proxy::dist(mtcars, method = "euclidean")
+
+fdist(1:10, method = "euclidean")
+proxy::dist(1:10, method = "euclidean")
+
+proxy::dist(A, B,  method = "Minkowski", p = 5, pairwise = TRUE)
 # benchmark
 #------------------------------------------------------------------------------
 B <- matrix(rnorm(100000), 1000, 100)
