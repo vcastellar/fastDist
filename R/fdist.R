@@ -1,3 +1,6 @@
+library(RcppParallel)
+RcppParallel::setThreadOptions(numThreads = 4)
+
 fdist <- function(A, B = NULL, method, p = NULL) {
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregestry"))
