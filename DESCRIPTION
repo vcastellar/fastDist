@@ -8,5 +8,4 @@ Maintainer: Who to complain to <yourfault@somewhere.net>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Imports: Rcpp (>= 1.0.0), RcppParallel
-LinkingTo: Rcpp, RcppArmadillo, registry, RcppParallel
-SystemRequirements: GNU make
+LinkingTo: Rcpp, RcppArmadillo, registry

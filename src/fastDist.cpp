@@ -1,16 +1,13 @@
 #include <RcppArmadillo.h>
 #include <Rmath.h>
-#include <RcppParallel.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::depends(RcppParallel)]]
 
 using namespace Rcpp;
 using namespace RcppArmadillo;
 
 
 // distancia euclidea
-// [[Rcpp::depends(RcppParallel)]]
 // [[Rcpp::export(.euclidean)]]
 NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(), 
@@ -27,36 +24,26 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   C.each_row() += Bn.t();
 
   
-  return wrap(arma::sqrt(output)); 
+  return wrap(arma::sqrt(C)); 
 }
 
 // distancia de manhattan
 // [[Rcpp::export(.manhattan)]]
 NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
-    int m = Ar.nrow(),
-        n = Br.nrow(),
-        k = Ar.ncol();
-    arma::mat A = arma::mat(Ar.begin(), m, k, false);
-    arma::mat B = arma::mat(Br.begin(), n, k, false);
-    arma::mat res = arma::mat(m, m, arma::fill::zeros);
-    res = arma::accu(arma::abs(A - B));
+  int m = Ar.nrow(),
+      n = Br.nrow(),
+      k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, m, arma::fill::zeros);
+
+  for (int i = 0; i < m; i++) {
+    A.each_row() -= B.row(i);
+    res.col(i) = arma::sum(arma::abs(A), 1);
+  }
+
   return wrap(res);
 }
-// NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
-//   int m = Ar.nrow(), 
-//       n = Br.nrow(),
-//       k = Ar.ncol();
-//   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
-//   arma::mat B = arma::mat(Br.begin(), n, k, false); 
-//   arma::mat res = arma::mat(m, m, arma::fill::zeros);
-//   
-//   for (int i = 0; i < m; i++) {
-//     A.each_row() -= B.row(i);
-//     res.col(i) = arma::sum(arma::abs(A), 1);
-//   }
-// 
-//   return wrap(res); 
-// }
 
 
 // distancia de minkowsky

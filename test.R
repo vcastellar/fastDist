@@ -36,10 +36,10 @@ res <- microbenchmark(
   parallelDist_euclidean = parDist(B, method = "euclidean"),
   fastDist_manhattan     = fdist(B, method = "manhattan"),
   proxy_manhattan        = dist(B, method = "Manhattan"),
-  parallelDist_manhattan = parDist(B, method = "manhattan")
-  
-  # fastDist_minkowsky = fdist(B, B, p = 5, method = "minkowski"),
-  # proxy_minkowsky    = dist(B, B, method = "Minkowski", p = 5)
+  parallelDist_manhattan = parDist(B, method = "manhattan"),
+  fastDist_minkowsky = fdist(B, p = 5, method = "minkowski"),
+  proxy_minkowsky    = dist(B, method = "minkowski", p = 5),
+  parallelDist_minkowsky = parDist(B, method = "minkowski")
 )
 autoplot(res)
 
