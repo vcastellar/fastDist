@@ -7,6 +7,7 @@ using namespace Rcpp;
 using namespace RcppArmadillo;
 
 
+
 // distancia euclidea
 // [[Rcpp::export(.euclidean)]]
 NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
@@ -35,14 +36,22 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
       k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false);
   arma::mat B = arma::mat(Br.begin(), n, k, false);
-  arma::mat res = arma::mat(m, m, arma::fill::zeros);
-
-  for (int i = 0; i < m; i++) {
-    A.each_row() -= B.row(i);
-    res.col(i) = arma::sum(arma::abs(A), 1);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  int x = std::min({m, n});
+  if (x == n) {
+    for (int j = 0; j < n; j++) {
+      res.col(j) = arma::sum(arma::abs(A.each_row() - B.row(j)), 1);
+    }  
+  } 
+  else {
+    for (int j = 0; j < m; j++) {
+      res.col(j) = arma::sum(arma::abs(B.each_row() - A.row(j)), 1);
+    } 
   }
-
+    
   return wrap(res);
+
+
 }
 
 
@@ -54,16 +63,15 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
       k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
   arma::mat B = arma::mat(Br.begin(), n, k, false); 
-  arma::mat res = arma::mat(m, m, arma::fill::zeros);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
 
   double q = 1.0 / p;
   
-  for (int i = 0; i < m; i++) {
-    A.each_row() -= B.row(i);
-    res.col(i) = arma::sum(arma::pow(arma::abs(A), p), 1);
+  for (int i = 0; i < n; i++) {
+    res.col(i) =  arma::sum(arma::pow(arma::abs(A.each_row() - B.row(i)), p), 1);
   }
   
-  return wrap(arma::pow(res, q)); 
+  res.for_each([&q](arma::mat::elem_type& val) {val = pow(val, q)28000000;});
+  
+  return wrap(res); 
 }
-
-
