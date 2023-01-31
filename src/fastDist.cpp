@@ -71,7 +71,7 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
     res.col(i) =  arma::sum(arma::pow(arma::abs(A.each_row() - B.row(i)), p), 1);
   }
   
-  res.for_each([&q](arma::mat::elem_type& val) {val = pow(val, q)28000000;});
+  res.for_each([&q](arma::mat::elem_type& val) {val = pow(val, q);});
   
   return wrap(res); 
 }
