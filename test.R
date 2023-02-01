@@ -7,6 +7,15 @@ library(parallel)
 A <- matrix(1:15, 5, 3, byrow = T)
 B <- matrix(1:12, 4, 3)
 
+fdist(A, B, method = "supremum")
+proxy::dist(A,B, method = "Supremum")
+
+fdist(A, B, method = "canberra")
+proxy::dist(A,B, method = "Canberra")
+
+fdist(A, B, method = "supremum")
+proxy::dist(A,B, method = "Supremum")
+
 (X <- fdist(A, method = "euclidean"))
 (Y <- distf(A, method = "euclidean"))
 proxy::dist(A,  method = "Euclidean")
@@ -35,22 +44,27 @@ proxy::dist(mtcars, method = "euclidean")
 fdist(1:10, method = "euclidean")
 proxy::dist(1:10, method = "euclidean")
 
-proxy::dist(A, B,  method = "Minkowski", p = 5, pairwise = TRUE)
+proxy::dist(A, B,  method = "Minkowski", p = 5)
 # benchmark
 #------------------------------------------------------------------------------
-B <- matrix(rnorm(1000000), 10000, 100)
+B <- matrix(rnorm(200000), 2000, 100)
+A <- matrix(rnorm(50000),   500, 100)
 
 rows <- seq(100, 100, 20) * 1e2
 cols <- 100
 
 res <- microbenchmark(
-  fastDist_euclidean = fdist(B, B, method = "euclidean"),
-  proxy_euclidean    = dist(B, B, method = "Euclidean"),
-  fastDist_manhattan = fdist(B, B, method = "manhattan"),
-  proxy_manhattan    = dist(B, B, method = "Manhattan"),
-  fastDist_minkowsky = fdist(B, B, p = 5, method = "minkowski"),
-  proxy_minkowsky    = dist(B, B, method = "Minkowski", p = 5),
-  times = 10
+  fastDist_euclidean = fdist(A, B, method = "euclidean"),
+  proxy_euclidean    = proxy::dist(A, B, method = "Euclidean"),
+  fastDist_manhattan = fdist(A, B, method = "manhattan"),
+  proxy_manhattan    = proxy::dist(A, B, method = "Manhattan"),
+  fastDist_minkowsky = fdist(A, B, method = "minkowski", p = 5),
+  proxy_minkowsky    = proxy::dist(A, B, method = "Minkowski", p = 5),
+  fastDist_canberra  = fdist(A, B, method = "canberra"),
+  proxy_canberra     = proxy::dist(A, B, method = "Canberra"),
+  fastDist_supremum  = fdist(A, B, method = "supremum"),
+  proxy_supremum     = proxy::dist(A, B, method = "Supremum"),
+  times = 30
 )
 autoplot(res)
 
@@ -58,7 +72,7 @@ autoplot(res)
 #------------------------------------------------------------------------------
 B <- matrix(rnorm(1000000), 10000, 100)
 
-rows <- seq(100, 100, 20) * 1e2
+rows <- seq(1, 100, 10) * 1e2
 cols <- 100
 
 res <- microbenchmark(

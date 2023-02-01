@@ -25,6 +25,15 @@ fdistregistry$set_entry(method = "minkowski",
                         p      = 2,
                         description = "distancia de Minkowski")
 
+fdistregistry$set_entry(method = "canberra",  
+                        fun    = .canberra,
+                        description = "distancia de canberra")
+
+
+fdistregistry$set_entry(method = "supremum",  
+                        fun    = .supremum,
+                        description = "distancia del supremo")
+
 
 
 

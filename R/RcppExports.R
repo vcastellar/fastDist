@@ -13,3 +13,15 @@
     .Call(`_fastDist_minkowski`, Ar, Br, p)
 }
 
+.canberra <- function(Ar, Br) {
+    .Call(`_fastDist_canberra`, Ar, Br)
+}
+
+.canberra2 <- function(Ar, Br) {
+    .Call(`_fastDist_canberra2`, Ar, Br)
+}
+
+.supremum <- function(Ar, Br) {
+    .Call(`_fastDist_supremum`, Ar, Br)
+}
+
