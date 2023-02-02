@@ -118,3 +118,27 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
   
   
 }
+
+
+// distancia mahalanobis
+// [[Rcpp::export(.mahalanobis)]]
+NumericMatrix mahalanobis(NumericMatrix Ar) {
+  int m = Ar.nrow(), 
+      k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false); 
+  arma::mat res = arma::mat(m, m, arma::fill::zeros);
+  arma::mat S(m,m);
+  
+  
+  S = arma::inv(arma::cov(A));
+  
+  for (int i =0; i < m; i++) {
+    for (int j = 0; j < m; j++) {
+      res(i,j) = arma::dot( (A.row(i) - A.row(j)) * S, (A.row(i) - A.row(j)).t());
+    }
+  }
+
+  
+  return wrap(arma::sqrt(res)); 
+}
+

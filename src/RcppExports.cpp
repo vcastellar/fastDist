@@ -60,18 +60,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// canberra2
-NumericMatrix canberra2(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_canberra2(SEXP ArSEXP, SEXP BrSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(canberra2(Ar, Br));
-    return rcpp_result_gen;
-END_RCPP
-}
 // supremum
 NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br);
 RcppExport SEXP _fastDist_supremum(SEXP ArSEXP, SEXP BrSEXP) {
@@ -84,14 +72,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mahalanobis
+NumericMatrix mahalanobis(NumericMatrix Ar);
+RcppExport SEXP _fastDist_mahalanobis(SEXP ArSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    rcpp_result_gen = Rcpp::wrap(mahalanobis(Ar));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_euclidean", (DL_FUNC) &_fastDist_euclidean, 2},
     {"_fastDist_manhattan", (DL_FUNC) &_fastDist_manhattan, 2},
     {"_fastDist_minkowski", (DL_FUNC) &_fastDist_minkowski, 3},
     {"_fastDist_canberra", (DL_FUNC) &_fastDist_canberra, 2},
-    {"_fastDist_canberra2", (DL_FUNC) &_fastDist_canberra2, 2},
     {"_fastDist_supremum", (DL_FUNC) &_fastDist_supremum, 2},
+    {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 1},
     {NULL, NULL, 0}
 };
 

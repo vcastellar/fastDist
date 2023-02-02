@@ -17,11 +17,11 @@
     .Call(`_fastDist_canberra`, Ar, Br)
 }
 
-.canberra2 <- function(Ar, Br) {
-    .Call(`_fastDist_canberra2`, Ar, Br)
-}
-
 .supremum <- function(Ar, Br) {
     .Call(`_fastDist_supremum`, Ar, Br)
+}
+
+.mahalanobis <- function(Ar) {
+    .Call(`_fastDist_mahalanobis`, Ar)
 }
 

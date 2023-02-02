@@ -50,16 +50,21 @@ fdist <- function(A, B = NULL, method, p = NULL) {
     stop(paste(method, "not found in fdistregestry"))
   }
   A <- as.matrix(A)
-  if (is.null(B)) {
-    B <- A
+  if (method == "mahalanobis") {
+    result <- fdistregistry$get_entry(method)$fun(A)
   } else {
-    B <- as.matrix(B)
+    if (is.null(B)) {
+      B <- A
+    } else {
+      B <- as.matrix(B)
+    }
+    if (is.na(fdistregistry$get_entry(method)$p)) {
+      result <- fdistregistry$get_entry(method)$fun(A, B)
+    } else {
+      result <- fdistregistry$get_entry(method)$fun(A, B, p)
+    }
   }
-  if (is.na(fdistregistry$get_entry(method)$p)) {
-    result <- fdistregistry$get_entry(method)$fun(A, B)
-  } else {
-    result <- fdistregistry$get_entry(method)$fun(A, B, p)
-  }
+
   
   return(result)
 }

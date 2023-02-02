@@ -34,6 +34,9 @@ fdistregistry$set_entry(method = "supremum",
                         fun    = .supremum,
                         description = "distancia del supremo")
 
+fdistregistry$set_entry(method = "mahalanobis",  
+                        fun    = .mahalanobis,
+                        description = "distancia de Mahalanobis")
 
 
 

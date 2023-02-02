@@ -4,7 +4,7 @@ library(microbenchmark)
 library(ggplot2)
 library(parallelDist)
 library(parallel)
-A <- matrix(1:15, 5, 3, byrow = T)
+A <- matrix(sample(1:20, 15), 5, 3, byrow = T)
 B <- matrix(1:12, 4, 3)
 
 fdist(A, B, method = "supremum")
@@ -64,6 +64,8 @@ res <- microbenchmark(
   proxy_canberra     = proxy::dist(A, B, method = "Canberra"),
   fastDist_supremum  = fdist(A, B, method = "supremum"),
   proxy_supremum     = proxy::dist(A, B, method = "Supremum"),
+  fastDist_mahalanobis = fdist(A, method = "mahalanobis"),
+  proxy_mahalanobis    = proxy::dist(A, method = "mahalanobis"),
   times = 30
 )
 autoplot(res)
