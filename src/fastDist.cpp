@@ -1,10 +1,16 @@
 #include <RcppArmadillo.h>
 #include <Rmath.h>
+#include <algorithm>
+#include <cmath>
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp;
 using namespace RcppArmadillo;
+
+inline bool same_input(const NumericMatrix& Ar, const NumericMatrix& Br) {
+  return (Ar.begin() == Br.begin()) && (Ar.nrow() == Br.nrow()) && (Ar.ncol() == Br.ncol());
+}
 
 
 
@@ -38,10 +44,21 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
   arma::mat A = arma::mat(Ar.begin(), m, k, false);
   arma::mat B = arma::mat(Br.begin(), n, k, false);
   arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
   
   for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n; j++) {
-      res(i,j) = arma::sum(arma::abs(A.row(i) - B.row(j)));
+    const int jStart = symmetric ? i : 0;
+    for (int j = jStart; j < n; j++) {
+      double dist = 0.0;
+      for (int col = 0; col < k; col++) {
+        dist += std::abs(Ap[col * m + i] - Bp[col * n + j]);
+      }
+      res(i, j) = dist;
+      if (symmetric && i != j) {
+        res(j, i) = dist;
+      }
     }  
   }
    
@@ -62,12 +79,23 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
   arma::mat B = arma::mat(Br.begin(), n, k, false); 
   arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
 
   double q = 1.0 / p;
   
   for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n; j++) {
-      res(i,j) =  arma::sum(arma::pow(arma::abs(A.row(i) - B.row(j)), p));
+    const int jStart = symmetric ? i : 0;
+    for (int j = jStart; j < n; j++) {
+      double dist = 0.0;
+      for (int col = 0; col < k; col++) {
+        dist += std::pow(std::abs(Ap[col * m + i] - Bp[col * n + j]), p);
+      }
+      res(i, j) = dist;
+      if (symmetric && i != j) {
+        res(j, i) = dist;
+      }
     }
   }
   
@@ -86,10 +114,26 @@ NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br) {
   arma::mat A = arma::mat(Ar.begin(), m, k, false);
   arma::mat B = arma::mat(Br.begin(), n, k, false);
   arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
   
   for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n; j++) {
-      res(i, j) = arma::sum(arma::abs(A.row(i) - B.row(j)) / arma::abs(A.row(i) + B.row(j)));
+    const int jStart = symmetric ? i : 0;
+    for (int j = jStart; j < n; j++) {
+      double dist = 0.0;
+      for (int col = 0; col < k; col++) {
+        const double a = Ap[col * m + i];
+        const double b = Bp[col * n + j];
+        const double den = std::abs(a) + std::abs(b);
+        if (den > 0.0) {
+          dist += std::abs(a - b) / den;
+        }
+      }
+      res(i, j) = dist;
+      if (symmetric && i != j) {
+        res(j, i) = dist;
+      }
     }
   }  
   
@@ -105,11 +149,22 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
   arma::mat A = arma::mat(Ar.begin(), m, k, false);
   arma::mat B = arma::mat(Br.begin(), n, k, false);
   arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
   
   
   for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n; j++) {
-      res(i,j) = arma::max(arma::abs(A.row(i) - B.row(j)));
+    const int jStart = symmetric ? i : 0;
+    for (int j = jStart; j < n; j++) {
+      double dist = 0.0;
+      for (int col = 0; col < k; col++) {
+        dist = std::max(dist, std::abs(Ap[col * m + i] - Bp[col * n + j]));
+      }
+      res(i, j) = dist;
+      if (symmetric && i != j) {
+        res(j, i) = dist;
+      }
     }
   }
 
@@ -123,22 +178,14 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
 // distancia mahalanobis
 // [[Rcpp::export(.mahalanobis)]]
 NumericMatrix mahalanobis(NumericMatrix Ar) {
-  int m = Ar.nrow(), 
+  int m = Ar.nrow(),
       k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
-  arma::mat res = arma::mat(m, m, arma::fill::zeros);
-  arma::mat S(m,m);
-  
-  
-  S = arma::inv(arma::cov(A));
-  
-  for (int i =0; i < m; i++) {
-    for (int j = 0; j < m; j++) {
-      res(i,j) = arma::dot( (A.row(i) - A.row(j)) * S, (A.row(i) - A.row(j)).t());
-    }
-  }
-
-  
-  return wrap(arma::sqrt(res)); 
+  arma::mat S = arma::inv(arma::cov(A));
+  arma::mat AS = A * S;
+  arma::vec q = arma::sum(AS % A, 1);
+  arma::mat G = AS * A.t();
+  arma::mat res = arma::repmat(q, 1, m) + arma::repmat(q.t(), m, 1) - 2.0 * G;
+  res.transform([](double x) { return std::sqrt(std::max(x, 0.0)); });
+  return wrap(res); 
 }
-
