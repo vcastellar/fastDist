@@ -212,8 +212,25 @@ NumericMatrix mahalanobis(NumericMatrix Ar) {
   arma::mat S = arma::inv_sympd(arma::cov(A));
   arma::mat AS = A * S;
   arma::vec q = arma::sum(AS % A, 1);
-  arma::mat G = AS * A.t();
-  arma::mat res = arma::repmat(q, 1, m) + arma::repmat(q.t(), m, 1) - 2.0 * G;
-  res.transform([](double x) { return std::sqrt(std::max(x, 0.0)); });
+  arma::mat res = arma::mat(m, m, arma::fill::zeros);
+  const double* AS_p = AS.memptr();
+  const double* A_p = A.memptr();
+
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+  for (int i = 0; i < m; i++) {
+    for (int j = i; j < m; j++) {
+      double dot = 0.0;
+      for (int col = 0; col < k; col++) {
+        dot += AS_p[col * m + i] * A_p[col * m + j];
+      }
+      const double sqDist = std::max(q[i] + q[j] - 2.0 * dot, 0.0);
+      const double dist = std::sqrt(sqDist);
+      res(i, j) = dist;
+      if (i != j) {
+        res(j, i) = dist;
+      }
+    }
+  }
+
   return wrap(res); 
 }
