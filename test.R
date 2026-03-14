@@ -33,6 +33,8 @@ distf(A, method = "manhattan")
 fdist(A, p = 5, method = "minkowski")
 proxy::dist(A,  method = "Minkowski", p = 5)
 
+
+
 fdist(A, B, p = 5, method = "minkowski")
 proxy::dist(A, B, method = "Minkowski", p = 5)
 
@@ -58,21 +60,23 @@ res <- microbenchmark(
   proxy_euclidean    = proxy::dist(A, B, method = "Euclidean"),
   fastDist_manhattan = fdist(A, B, method = "manhattan"),
   proxy_manhattan    = proxy::dist(A, B, method = "Manhattan"),
-  fastDist_minkowsky = fdist(A, B, method = "minkowski", p = 5),
-  proxy_minkowsky    = proxy::dist(A, B, method = "Minkowski", p = 5),
-  fastDist_canberra  = fdist(A, B, method = "canberra"),
-  proxy_canberra     = proxy::dist(A, B, method = "Canberra"),
-  fastDist_supremum  = fdist(A, B, method = "supremum"),
-  proxy_supremum     = proxy::dist(A, B, method = "Supremum"),
-  fastDist_mahalanobis = fdist(A, method = "mahalanobis"),
-  proxy_mahalanobis    = proxy::dist(A, method = "mahalanobis"),
-  times = 30
+  
+  # fastDist_minkowsk = fdist(A, B, method = "minkowski", p = 5),
+  # 
+  # proxy_minkowsky    = proxy::dist(A, B, method = "Minkowski", p = 5),
+  # fastDist_canberra  = fdist(A, B, method = "canberra"),
+  # proxy_canberra     = proxy::dist(A, B, method = "Canberra"),
+  # fastDist_supremum  = fdist(A, B, method = "supremum"),
+  # proxy_supremum     = proxy::dist(A, B, method = "Supremum"),
+  # fastDist_mahalanobis = fdist(A, method = "mahalanobis"),
+  # proxy_mahalanobis    = proxy::dist(A, method = "mahalanobis"),
+  times = 10
 )
 autoplot(res)
 
 
 #------------------------------------------------------------------------------
-B <- matrix(rnorm(1000000), 10000, 100)
+B <- matrix(rnorm(500000), 5000, 100)
 
 rows <- seq(1, 100, 10) * 1e2
 cols <- 100
@@ -81,8 +85,11 @@ res <- microbenchmark(
   fastDist_euclidean = fdist(B, B, method = "euclidean"),
   fastDist_manhattan = fdist(B, B, method = "manhattan"),
   
-  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
+  parallel_euclidean = parDist(B, mnethod = "euclidian"),
+  parallel_mahattan = parDist(B, mnethod = "manhattan"),
+  
   proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
+  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
 
   times = 10
 )

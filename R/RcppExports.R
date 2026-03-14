@@ -9,10 +9,6 @@
     .Call(`_fastDist_manhattan`, Ar, Br)
 }
 
-.minkowski <- function(Ar, Br, p) {
-    .Call(`_fastDist_minkowski`, Ar, Br, p)
-}
-
 .canberra <- function(Ar, Br) {
     .Call(`_fastDist_canberra`, Ar, Br)
 }
@@ -23,5 +19,9 @@
 
 .mahalanobis <- function(Ar) {
     .Call(`_fastDist_mahalanobis`, Ar)
+}
+
+.minkowski <- function(Ar, Br, p) {
+    .Call(`_fastDist_minkowski`, Ar, Br, p)
 }
 
