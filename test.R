@@ -84,10 +84,13 @@ cols <- 100
 res <- microbenchmark(
   fastDist_euclidean = fdist(B, B, method = "euclidean"),
   fastDist_manhattan = fdist(B, B, method = "manhattan"),
+  fastDist_mahalanobis = fdist(B, method = "mahalanobis"),
   
   parallel_euclidean = parDist(B, mnethod = "euclidian"),
   parallel_mahattan = parDist(B, mnethod = "manhattan"),
+  parallel_mahalanobis = parDist(B, mnethod = "mahalanobis"),
   
+
   proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
   proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
 
