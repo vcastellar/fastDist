@@ -11,38 +11,34 @@ distf <- function(A, B = NULL, method, ncores = NULL, p = NULL) {
   } else {
     B <- as.matrix(B)
   }
-  
-  nrowmax <- max(nrow(A), nrow(B))
-  
-  if (is.null(ncores)) {
-    if (nrowmax > 100){
-      numCores <- 1
-      
-    } else {
-      numCores <- 1
-    }
-    
-  }
 
-  cl <- makeCluster(numCores, type = "PSOCK")
-  clusterEvalQ(cl, library(fastDist))
-  clusterExport(cl, varlist = c("B"))
-  
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregestry"))
   }
-  
+
+  numCores <- if (is.null(ncores)) {
+    max(1L, min(detectCores(logical = FALSE), nrow(A)))
+  } else {
+    max(1L, min(as.integer(ncores), nrow(A)))
+  }
+
+  if (numCores == 1L) {
+    return(fdist(A, B = B, method = method, p = p))
+  }
+
   q <- nrow(A) %/% numCores
   r <- nrow(A) %% numCores
-  
-  my_list1 <- lapply(split(A,                    # Split matrix into list
-                    c(rep(1:numCores, each = q ), 
-                      rep(numCores,   each = r ))
-                    ), matrix, ncol = ncol(A))
-  
-  
-  
-  as.matrix(do.call(rbind.data.frame, parLapply(cl, my_list1, fdist, method = method, B = B)))
+
+  groups <- c(rep(seq_len(numCores), each = q), rep(numCores, each = r))
+  chunks <- lapply(split(A, groups), matrix, ncol = ncol(A))
+
+  cl <- makeCluster(numCores, type = "PSOCK")
+  on.exit(stopCluster(cl), add = TRUE)
+  clusterEvalQ(cl, library(fastDist))
+  clusterExport(cl, varlist = c("B", "method", "p"), envir = environment())
+
+  pieces <- parLapply(cl, chunks, fdist, B = B, method = method, p = p)
+  do.call(rbind, pieces)
 }
 
 fdist <- function(A, B = NULL, method, p = NULL) {

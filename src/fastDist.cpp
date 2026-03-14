@@ -2,6 +2,9 @@
 #include <Rmath.h>
 #include <algorithm>
 #include <cmath>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -29,7 +32,7 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   arma::mat C = -2 * (A * B.t());
   C.each_col() += An;
   C.each_row() += Bn.t();
-  C.for_each([](arma::mat::elem_type& val) {val = sqrt(val);});
+  C.for_each([](arma::mat::elem_type& val) {val = std::sqrt(std::max(val, 0.0));});
 
   
   return wrap(C); 
@@ -47,7 +50,8 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
   const bool symmetric = same_input(Ar, Br);
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
-  
+
+#pragma omp parallel for schedule(static) if(m * n > 10000)
   for (int i = 0; i < m; i++) {
     const int jStart = symmetric ? i : 0;
     for (int j = jStart; j < n; j++) {
@@ -84,13 +88,21 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
   const double* Bp = B.memptr();
 
   double q = 1.0 / p;
-  
+
+#pragma omp parallel for schedule(static) if(m * n > 10000)
   for (int i = 0; i < m; i++) {
     const int jStart = symmetric ? i : 0;
     for (int j = jStart; j < n; j++) {
       double dist = 0.0;
       for (int col = 0; col < k; col++) {
-        dist += std::pow(std::abs(Ap[col * m + i] - Bp[col * n + j]), p);
+        const double delta = std::abs(Ap[col * m + i] - Bp[col * n + j]);
+        if (p == 1.0) {
+          dist += delta;
+        } else if (p == 2.0) {
+          dist += delta * delta;
+        } else {
+          dist += std::pow(delta, p);
+        }
       }
       res(i, j) = dist;
       if (symmetric && i != j) {
@@ -99,7 +111,7 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
     }
   }
   
-  res.for_each([&q](arma::mat::elem_type& val) {val = pow(val, q);});
+  res.for_each([&q](arma::mat::elem_type& val) {val = std::pow(val, q);});
   
   return wrap(res); 
 }
@@ -117,7 +129,8 @@ NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br) {
   const bool symmetric = same_input(Ar, Br);
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
-  
+
+#pragma omp parallel for schedule(static) if(m * n > 10000)
   for (int i = 0; i < m; i++) {
     const int jStart = symmetric ? i : 0;
     for (int j = jStart; j < n; j++) {
@@ -152,8 +165,8 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
   const bool symmetric = same_input(Ar, Br);
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
-  
-  
+
+#pragma omp parallel for schedule(static) if(m * n > 10000)
   for (int i = 0; i < m; i++) {
     const int jStart = symmetric ? i : 0;
     for (int j = jStart; j < n; j++) {
@@ -181,7 +194,7 @@ NumericMatrix mahalanobis(NumericMatrix Ar) {
   int m = Ar.nrow(),
       k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false); 
-  arma::mat S = arma::inv(arma::cov(A));
+  arma::mat S = arma::inv_sympd(arma::cov(A));
   arma::mat AS = A * S;
   arma::vec q = arma::sum(AS % A, 1);
   arma::mat G = AS * A.t();
