@@ -20,22 +20,37 @@ inline bool same_input(const NumericMatrix& Ar, const NumericMatrix& Br) {
 // distancia euclidea
 // [[Rcpp::export(.euclidean)]]
 NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
-  int m = Ar.nrow(), 
+  int m = Ar.nrow(),
     n = Br.nrow(),
     k = Ar.ncol();
-  arma::mat A = arma::mat(Ar.begin(), m, k, false); 
-  arma::mat B = arma::mat(Br.begin(), n, k, false); 
-  
-  arma::colvec An =  arma::sum(arma::square(A),1);
-  arma::colvec Bn =  arma::sum(arma::square(B),1);
-  
-  arma::mat C = -2 * (A * B.t());
-  C.each_col() += An;
-  C.each_row() += Bn.t();
-  C.for_each([](arma::mat::elem_type& val) {val = std::sqrt(std::max(val, 0.0));});
-  
-  
-  return wrap(C); 
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  arma::colvec An = arma::sum(arma::square(A), 1);
+  arma::colvec Bn = arma::sum(arma::square(B), 1);
+
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+  for (int i = 0; i < m; i++) {
+    const int jStart = symmetric ? i : 0;
+    for (int j = jStart; j < n; j++) {
+      double dot = 0.0;
+      for (int col = 0; col < k; col++) {
+        dot += Ap[col * m + i] * Bp[col * n + j];
+      }
+      const double sqDist = std::max(An[i] + Bn[j] - 2.0 * dot, 0.0);
+      const double dist = std::sqrt(sqDist);
+      res(i, j) = dist;
+      if (symmetric && i != j) {
+        res(j, i) = dist;
+      }
+    }
+  }
+
+  return wrap(res);
 }
 
 // distancia de manhattan
