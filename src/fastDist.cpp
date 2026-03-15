@@ -27,25 +27,28 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   arma::mat B = arma::mat(Br.begin(), n, k, false);
   arma::mat res = arma::mat(m, n, arma::fill::zeros);
   const bool symmetric = same_input(Ar, Br);
-  const double* Ap = A.memptr();
-  const double* Bp = B.memptr();
+  const arma::colvec An = arma::sum(arma::square(A), 1);
+  const arma::colvec Bn = symmetric ? An : arma::sum(arma::square(B), 1);
+  const arma::mat G = A * B.t();
 
-  arma::colvec An = arma::sum(arma::square(A), 1);
-  arma::colvec Bn = arma::sum(arma::square(B), 1);
-
-#pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    const int jStart = symmetric ? i : 0;
-    for (int j = jStart; j < n; j++) {
-      double dot = 0.0;
-      for (int col = 0; col < k; col++) {
-        dot += Ap[col * m + i] * Bp[col * n + j];
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        const double sqDist = std::max(An[i] + An[j] - 2.0 * G(i, j), 0.0);
+        const double dist = std::sqrt(sqDist);
+        res(i, j) = dist;
+        if (i != j) {
+          res(j, i) = dist;
+        }
       }
-      const double sqDist = std::max(An[i] + Bn[j] - 2.0 * dot, 0.0);
-      const double dist = std::sqrt(sqDist);
-      res(i, j) = dist;
-      if (symmetric && i != j) {
-        res(j, i) = dist;
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        const double sqDist = std::max(An[i] + Bn[j] - 2.0 * G(i, j), 0.0);
+        res(i, j) = std::sqrt(sqDist);
       }
     }
   }
@@ -212,18 +215,13 @@ NumericMatrix mahalanobis(NumericMatrix Ar) {
   arma::mat S = arma::inv_sympd(arma::cov(A));
   arma::mat AS = A * S;
   arma::vec q = arma::sum(AS % A, 1);
+  arma::mat G = AS * A.t();
   arma::mat res = arma::mat(m, m, arma::fill::zeros);
-  const double* AS_p = AS.memptr();
-  const double* A_p = A.memptr();
 
 #pragma omp parallel for schedule(static) if(m * m > 10000)
   for (int i = 0; i < m; i++) {
     for (int j = i; j < m; j++) {
-      double dot = 0.0;
-      for (int col = 0; col < k; col++) {
-        dot += AS_p[col * m + i] * A_p[col * m + j];
-      }
-      const double sqDist = std::max(q[i] + q[j] - 2.0 * dot, 0.0);
+      const double sqDist = std::max(q[i] + q[j] - 2.0 * G(i, j), 0.0);
       const double dist = std::sqrt(sqDist);
       res(i, j) = dist;
       if (i != j) {
