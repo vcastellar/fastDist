@@ -91,8 +91,8 @@ res <- microbenchmark(
   parallel_mahalanobis = parDist(B, mnethod = "mahalanobis"),
   
 
-  proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
-  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
+ ## proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
+ ##  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
 
   times = 10
 )
