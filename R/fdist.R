@@ -1,7 +1,22 @@
 
-
-
-
+#' Distancias por bloques en paralelo
+#'
+#' Calcula una matriz de distancias entre las filas de `A` y `B` repartiendo
+#' las filas de `A` por bloques y ejecutando cada bloque en paralelo con
+#' `parallel::parLapply()`. Internamente delega el cálculo en [fdist()].
+#'
+#' @param A Matriz o estructura coercible a matriz con las observaciones de
+#'   origen (filas).
+#' @param B Matriz o estructura coercible a matriz con las observaciones de
+#'   destino (filas). Si es `NULL`, se usa `A`.
+#' @param method Nombre del método de distancia registrado en `fdistregistry`.
+#' @param ncores Número de núcleos para paralelizar. Si es `NULL`, se usa el
+#'   valor configurado internamente por la función.
+#' @param p Parámetro adicional para métodos que lo requieren (por ejemplo,
+#'   Minkowski).
+#'
+#' @return Una matriz numérica con las distancias calculadas entre `A` y `B`.
+#' @export
 distf <- function(A, B = NULL, method, ncores = NULL, p = NULL) {
   library(parallel)
 
@@ -45,6 +60,22 @@ distf <- function(A, B = NULL, method, ncores = NULL, p = NULL) {
   as.matrix(do.call(rbind.data.frame, parLapply(cl, my_list1, fdist, method = method, B = B)))
 }
 
+#' Distancias rápidas entre observaciones
+#'
+#' Calcula distancias entre filas de `A` y `B` usando una implementación
+#' registrada en `fdistregistry`. Si `method = "mahalanobis"`, el cálculo se
+#' realiza con la firma específica de ese método.
+#'
+#' @param A Matriz o estructura coercible a matriz con las observaciones de
+#'   origen (filas).
+#' @param B Matriz o estructura coercible a matriz con las observaciones de
+#'   destino (filas). Si es `NULL`, se usa `A`.
+#' @param method Nombre del método de distancia registrado en `fdistregistry`.
+#' @param p Parámetro adicional para métodos que lo requieren (por ejemplo,
+#'   Minkowski).
+#'
+#' @return Una matriz numérica con las distancias calculadas.
+#' @export
 fdist <- function(A, B = NULL, method, p = NULL) {
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregestry"))
