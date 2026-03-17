@@ -77,19 +77,19 @@ autoplot(res)
 
 #------------------------------------------------------------------------------
 B <- matrix(rnorm(500000), 5000, 100)
+A <- matrix(rnorm(40000), 400, 100)
 
 rows <- seq(1, 100, 10) * 1e2
 cols <- 100
 
 res <- microbenchmark(
-  fastDist_euclidean = fdist(B, B, method = "euclidean"),
-  fastDist_manhattan = fdist(B, B, method = "manhattan"),
-  fastDist_mahalanobis = fdist(B, method = "mahalanobis"),
+  fastDist_euclidean = fdist(B, method = "euclidean"),
+  fastDist_manhattan = fdist(B, method = "manhattan"),
+  #fastDist_mahalanobis = fdist(B, method = "mahalanobis"),
   
-  parallel_euclidean = parDist(B, mnethod = "euclidian"),
-  parallel_mahattan = parDist(B, mnethod = "manhattan"),
-  parallel_mahalanobis = parDist(B, mnethod = "mahalanobis"),
-  
+  parallel_euclidean = parDist(B, method = "euclidean"),
+  parallel_mahattan = parDist(B, method = "manhattan"),
+  #parallel_mahalanobis = parDist(B,  method = "mahalanobis"),
 
  ## proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
  ##  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),

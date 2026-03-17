@@ -33,25 +33,42 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   arma::colvec An = arma::sum(arma::square(A), 1);
   arma::colvec Bn = arma::sum(arma::square(B), 1);
   
-#pragma omp parallel for schedule(static) if(m * n > 10000)
+
+  #pragma omp parallel for schedule(static) if(m * n > 10000)
   for (int i = 0; i < m; i++) {
+    
     const int jStart = symmetric ? i : 0;
+    const double ai_norm = An[i];
+    
     for (int j = jStart; j < n; j++) {
+      
+      const double* a = Ap + i;
+      const double* b = Bp + j;
+      
       double dot = 0.0;
+      
       for (int col = 0; col < k; col++) {
-        dot += Ap[col * m + i] * Bp[col * n + j];
+        dot += (*a) * (*b);
+        a += m;
+        b += n;
       }
-      const double sqDist = std::max(An[i] + Bn[j] - 2.0 * dot, 0.0);
-      const double dist = std::sqrt(sqDist);
+      
+      double sqDist = ai_norm + Bn[j] - 2.0 * dot;
+      if (sqDist < 0.0) sqDist = 0.0;
+      
+      double dist = std::sqrt(sqDist);
+      
       res(i, j) = dist;
-      if (symmetric && i != j) {
+      
+      if (symmetric && i != j)
         res(j, i) = dist;
-      }
     }
   }
   
   return wrap(res);
 }
+
+
 
 // distancia de manhattan
 // [[Rcpp::export(.manhattan)]]
