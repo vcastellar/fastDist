@@ -12,3 +12,4 @@ LinkingTo: Rcpp, RcppArmadillo, registry, parallel
 Suggests: testthat,
     microbenchmark,
     parallelDist
+RoxygenNote: 7.3.2
