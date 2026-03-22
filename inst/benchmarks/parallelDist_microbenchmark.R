@@ -8,6 +8,7 @@
 benchmark_result <- benchmark_parallelDist(
   a_nrow = 1000L,
   n_features = 1000L,
+  # b_sizes = c(1000L, 5000L, 10000L, 20000L),
   b_sizes = c(1000L, 5000L, 10000L, 20000L),
   methods = c("euclidean", "manhattan", "minkowski"),
   minkowski_p = 3,
@@ -17,4 +18,4 @@ benchmark_result <- benchmark_parallelDist(
   check = FALSE
 )
 
-print(benchmark_result$summary)
+print(benchmark_result$summary)[, c("expr", "mean", "method", "b_rows", "a_rows", "n_features")]
