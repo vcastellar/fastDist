@@ -20,3 +20,30 @@ Tiempo (segundos) de cálculo de distancias entre filas de una matriz de dimensi
 |       | proxy_supremum       | 395.2    | 401.1    | 413.0    | 408.1    | 419.7    | 483.7    | 30    |
 |       | fastDist_mahalanobis | 2040.2   | 2078.8   | 2108.2   | 2100.7   | 2128.0   | 2244.6   | 30    |
 |       | proxy_mahalanobis    | 107772.6 | 109274.8 | 111446.1 | 110321.4 | 112152.8 | 122567.6 | 30    |
+
+## benchmark fastDist vs parallelDist
+
+Se agregó un benchmark reproducible para comparar `fastDist` contra `parallelDist`
+en el cálculo de distancias entre las filas de `A` y `B` para los métodos:
+
+- Euclidean
+- Manhattan
+- Minkowski
+
+El script está en `inst/benchmarks/parallelDist_microbenchmark.R` y ejecuta el caso:
+
+- `A`: `1000 x 1000`
+- `B`: `1000`, `5000`, `10000` y `20000` filas
+
+Uso sugerido:
+
+```r
+install.packages(c("microbenchmark", "parallelDist"))
+devtools::load_all(".")
+source("inst/benchmarks/parallelDist_microbenchmark.R")
+```
+
+Internamente, la comparación con `parallelDist` se resuelve por bloques sobre las filas
+de `B`, porque `parallelDist::parDist()` calcula matrices de distancia cuadradas. De esta
+forma se puede extraer la submatriz cruzada `A x B` y estudiar cómo escala el tiempo a
+medida que crece `B`.
