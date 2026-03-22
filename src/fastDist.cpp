@@ -149,6 +149,73 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
 }
 
 
+// distancia de correlacion
+// [[Rcpp::export(.correlation)]]
+NumericMatrix correlation(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+  arma::colvec meanA = arma::mean(A, 1);
+  arma::colvec meanB = arma::mean(B, 1);
+  arma::colvec normA(m, arma::fill::zeros);
+  arma::colvec normB(n, arma::fill::zeros);
+
+#pragma omp parallel for schedule(static) if(m > 100)
+  for (int i = 0; i < m; i++) {
+    double ss = 0.0;
+    for (int col = 0; col < k; col++) {
+      const double centered = Ap[col * m + i] - meanA[i];
+      ss += centered * centered;
+    }
+    normA[i] = std::sqrt(ss);
+  }
+
+#pragma omp parallel for schedule(static) if(n > 100)
+  for (int j = 0; j < n; j++) {
+    double ss = 0.0;
+    for (int col = 0; col < k; col++) {
+      const double centered = Bp[col * n + j] - meanB[j];
+      ss += centered * centered;
+    }
+    normB[j] = std::sqrt(ss);
+  }
+
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+  for (int i = 0; i < m; i++) {
+    const int jStart = symmetric ? i : 0;
+    for (int j = jStart; j < n; j++) {
+      double corr = 0.0;
+      const double denom = normA[i] * normB[j];
+
+      if (denom > 0.0) {
+        double dot = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double a = Ap[col * m + i] - meanA[i];
+          const double b = Bp[col * n + j] - meanB[j];
+          dot += a * b;
+        }
+        corr = dot / denom;
+        corr = std::max(-1.0, std::min(1.0, corr));
+      }
+
+      const double dist = 1.0 - corr;
+      res(i, j) = dist;
+      if (symmetric && i != j) {
+        res(j, i) = dist;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
 // distancia de canberra
 // [[Rcpp::export(.canberra)]]
 NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br) {

@@ -48,6 +48,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// correlation
+NumericMatrix correlation(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_correlation(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(correlation(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
 // canberra
 NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br);
 RcppExport SEXP _fastDist_canberra(SEXP ArSEXP, SEXP BrSEXP) {
@@ -88,6 +100,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_euclidean", (DL_FUNC) &_fastDist_euclidean, 2},
     {"_fastDist_manhattan", (DL_FUNC) &_fastDist_manhattan, 2},
     {"_fastDist_minkowski", (DL_FUNC) &_fastDist_minkowski, 3},
+    {"_fastDist_correlation", (DL_FUNC) &_fastDist_correlation, 2},
     {"_fastDist_canberra", (DL_FUNC) &_fastDist_canberra, 2},
     {"_fastDist_supremum", (DL_FUNC) &_fastDist_supremum, 2},
     {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 1},

@@ -13,6 +13,10 @@
     .Call(`_fastDist_minkowski`, Ar, Br, p)
 }
 
+.correlation <- function(Ar, Br) {
+    .Call(`_fastDist_correlation`, Ar, Br)
+}
+
 .canberra <- function(Ar, Br) {
     .Call(`_fastDist_canberra`, Ar, Br)
 }
