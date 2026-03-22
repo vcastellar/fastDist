@@ -25,6 +25,10 @@ fdistregistry$set_entry(method = "minkowski",
                         p      = 2,
                         description = "distancia de Minkowski")
 
+fdistregistry$set_entry(method = "correlation",  
+                        fun    = .correlation,
+                        description = "distancia de correlacion")
+
 fdistregistry$set_entry(method = "canberra",  
                         fun    = .canberra,
                         description = "distancia de canberra")
