@@ -34,34 +34,43 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   arma::colvec Bn = arma::sum(arma::square(B), 1);
   
 
-  #pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    
-    const int jStart = symmetric ? i : 0;
-    const double ai_norm = An[i];
-    
-    for (int j = jStart; j < n; j++) {
-      
-      const double* a = Ap + i;
-      const double* b = Bp + j;
-      
-      double dot = 0.0;
-      
-      for (int col = 0; col < k; col++) {
-        dot += (*a) * (*b);
-        a += m;
-        b += n;
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      const double ai_norm = An[i];
+      for (int j = i; j < m; j++) {
+        const double* a = Ap + i;
+        const double* b = Bp + j;
+        double dot = 0.0;
+        for (int col = 0; col < k; col++) {
+          dot += (*a) * (*b);
+          a += m;
+          b += n;
+        }
+        double sqDist = ai_norm + Bn[j] - 2.0 * dot;
+        if (sqDist < 0.0) sqDist = 0.0;
+        const double dist = std::sqrt(sqDist);
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
       }
-      
-      double sqDist = ai_norm + Bn[j] - 2.0 * dot;
-      if (sqDist < 0.0) sqDist = 0.0;
-      
-      double dist = std::sqrt(sqDist);
-      
-      res(i, j) = dist;
-      
-      if (symmetric && i != j)
-        res(j, i) = dist;
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      const double ai_norm = An[i];
+      for (int j = 0; j < n; j++) {
+        const double* a = Ap + i;
+        const double* b = Bp + j;
+        double dot = 0.0;
+        for (int col = 0; col < k; col++) {
+          dot += (*a) * (*b);
+          a += m;
+          b += n;
+        }
+        double sqDist = ai_norm + Bn[j] - 2.0 * dot;
+        if (sqDist < 0.0) sqDist = 0.0;
+        res(i, j) = std::sqrt(sqDist);
+      }
     }
   }
   
@@ -83,19 +92,29 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
   
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          dist += std::abs(Ap[col * m + i] - Bp[col * n + j]);
+        }
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
 #pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    const int jStart = symmetric ? i : 0;
-    for (int j = jStart; j < n; j++) {
-      double dist = 0.0;
-      for (int col = 0; col < k; col++) {
-        dist += std::abs(Ap[col * m + i] - Bp[col * n + j]);
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          dist += std::abs(Ap[col * m + i] - Bp[col * n + j]);
+        }
+        res(i, j) = dist;
       }
-      res(i, j) = dist;
-      if (symmetric && i != j) {
-        res(j, i) = dist;
-      }
-    }  
+    }
   }
   
   
@@ -121,24 +140,41 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
   
   double q = 1.0 / p;
   
-#pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    const int jStart = symmetric ? i : 0;
-    for (int j = jStart; j < n; j++) {
-      double dist = 0.0;
-      for (int col = 0; col < k; col++) {
-        const double delta = std::abs(Ap[col * m + i] - Bp[col * n + j]);
-        if (p == 1.0) {
-          dist += delta;
-        } else if (p == 2.0) {
-          dist += delta * delta;
-        } else {
-          dist += std::pow(delta, p);
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double delta = std::abs(Ap[col * m + i] - Bp[col * n + j]);
+          if (p == 1.0) {
+            dist += delta;
+          } else if (p == 2.0) {
+            dist += delta * delta;
+          } else {
+            dist += std::pow(delta, p);
+          }
         }
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
       }
-      res(i, j) = dist;
-      if (symmetric && i != j) {
-        res(j, i) = dist;
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double delta = std::abs(Ap[col * m + i] - Bp[col * n + j]);
+          if (p == 1.0) {
+            dist += delta;
+          } else if (p == 2.0) {
+            dist += delta * delta;
+          } else {
+            dist += std::pow(delta, p);
+          }
+        }
+        res(i, j) = dist;
       }
     }
   }
@@ -186,28 +222,44 @@ NumericMatrix correlation(NumericMatrix Ar, NumericMatrix Br) {
     normB[j] = std::sqrt(ss);
   }
 
-#pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    const int jStart = symmetric ? i : 0;
-    for (int j = jStart; j < n; j++) {
-      double corr = 0.0;
-      const double denom = normA[i] * normB[j];
-
-      if (denom > 0.0) {
-        double dot = 0.0;
-        for (int col = 0; col < k; col++) {
-          const double a = Ap[col * m + i] - meanA[i];
-          const double b = Bp[col * n + j] - meanB[j];
-          dot += a * b;
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double corr = 0.0;
+        const double denom = normA[i] * normB[j];
+        if (denom > 0.0) {
+          double dot = 0.0;
+          for (int col = 0; col < k; col++) {
+            const double a = Ap[col * m + i] - meanA[i];
+            const double b = Bp[col * n + j] - meanB[j];
+            dot += a * b;
+          }
+          corr = dot / denom;
+          corr = std::max(-1.0, std::min(1.0, corr));
         }
-        corr = dot / denom;
-        corr = std::max(-1.0, std::min(1.0, corr));
+        const double dist = 1.0 - corr;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
       }
-
-      const double dist = 1.0 - corr;
-      res(i, j) = dist;
-      if (symmetric && i != j) {
-        res(j, i) = dist;
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double corr = 0.0;
+        const double denom = normA[i] * normB[j];
+        if (denom > 0.0) {
+          double dot = 0.0;
+          for (int col = 0; col < k; col++) {
+            const double a = Ap[col * m + i] - meanA[i];
+            const double b = Bp[col * n + j] - meanB[j];
+            dot += a * b;
+          }
+          corr = dot / denom;
+          corr = std::max(-1.0, std::min(1.0, corr));
+        }
+        res(i, j) = 1.0 - corr;
       }
     }
   }
@@ -229,25 +281,40 @@ NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br) {
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
   
-#pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    const int jStart = symmetric ? i : 0;
-    for (int j = jStart; j < n; j++) {
-      double dist = 0.0;
-      for (int col = 0; col < k; col++) {
-        const double a = Ap[col * m + i];
-        const double b = Bp[col * n + j];
-        const double den = std::abs(a) + std::abs(b);
-        if (den > 0.0) {
-          dist += std::abs(a - b) / den;
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double a = Ap[col * m + i];
+          const double b = Bp[col * n + j];
+          const double den = std::abs(a) + std::abs(b);
+          if (den > 0.0) {
+            dist += std::abs(a - b) / den;
+          }
         }
-      }
-      res(i, j) = dist;
-      if (symmetric && i != j) {
-        res(j, i) = dist;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
       }
     }
-  }  
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double a = Ap[col * m + i];
+          const double b = Bp[col * n + j];
+          const double den = std::abs(a) + std::abs(b);
+          if (den > 0.0) {
+            dist += std::abs(a - b) / den;
+          }
+        }
+        res(i, j) = dist;
+      }
+    }
+  }
   
   return wrap(res);
 }
@@ -265,17 +332,27 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
   
-#pragma omp parallel for schedule(static) if(m * n > 10000)
-  for (int i = 0; i < m; i++) {
-    const int jStart = symmetric ? i : 0;
-    for (int j = jStart; j < n; j++) {
-      double dist = 0.0;
-      for (int col = 0; col < k; col++) {
-        dist = std::max(dist, std::abs(Ap[col * m + i] - Bp[col * n + j]));
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          dist = std::max(dist, std::abs(Ap[col * m + i] - Bp[col * n + j]));
+        }
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
       }
-      res(i, j) = dist;
-      if (symmetric && i != j) {
-        res(j, i) = dist;
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          dist = std::max(dist, std::abs(Ap[col * m + i] - Bp[col * n + j]));
+        }
+        res(i, j) = dist;
       }
     }
   }
