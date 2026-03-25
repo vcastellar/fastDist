@@ -43,10 +43,11 @@ data(mtcars)
 fdist(mtcars, method = "euclidean")
 proxy::dist(mtcars, method = "euclidean")
 
-fdist(1:10, method = "euclidean")
-proxy::dist(1:10, method = "euclidean")
-
 proxy::dist(A, B,  method = "Minkowski", p = 5)
+
+fdist(A, B, method = "correlation")
+proxy::dist(A, B, method = "correlation")
+
 # benchmark
 #------------------------------------------------------------------------------
 B <- matrix(rnorm(200000), 2000, 100)
