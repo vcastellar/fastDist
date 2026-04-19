@@ -98,7 +98,7 @@ res <- microbenchmark(
  ## proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
  ##  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
 
-  times = 50
+  times = 10
 )
 autoplot(res)
 
