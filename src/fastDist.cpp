@@ -267,6 +267,62 @@ NumericMatrix correlation(NumericMatrix Ar, NumericMatrix Br) {
   return wrap(res);
 }
 
+// distancia del coseno
+// [[Rcpp::export(.cosine)]]
+NumericMatrix cosine(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+  arma::colvec normA = arma::sqrt(arma::sum(arma::square(A), 1));
+  arma::colvec normB = arma::sqrt(arma::sum(arma::square(B), 1));
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double cos_sim = 0.0;
+        const double denom = normA[i] * normB[j];
+        if (denom > 0.0) {
+          double dot = 0.0;
+          for (int col = 0; col < k; col++) {
+            dot += Ap[col * m + i] * Bp[col * n + j];
+          }
+          cos_sim = dot / denom;
+          cos_sim = std::max(-1.0, std::min(1.0, cos_sim));
+        }
+        const double dist = 1.0 - cos_sim;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double cos_sim = 0.0;
+        const double denom = normA[i] * normB[j];
+        if (denom > 0.0) {
+          double dot = 0.0;
+          for (int col = 0; col < k; col++) {
+            dot += Ap[col * m + i] * Bp[col * n + j];
+          }
+          cos_sim = dot / denom;
+          cos_sim = std::max(-1.0, std::min(1.0, cos_sim));
+        }
+        res(i, j) = 1.0 - cos_sim;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
 
 // distancia de canberra
 // [[Rcpp::export(.canberra)]]

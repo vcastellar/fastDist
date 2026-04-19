@@ -17,6 +17,10 @@
     .Call(`_fastDist_correlation`, Ar, Br)
 }
 
+.cosine <- function(Ar, Br) {
+    .Call(`_fastDist_cosine`, Ar, Br)
+}
+
 .canberra <- function(Ar, Br) {
     .Call(`_fastDist_canberra`, Ar, Br)
 }
@@ -28,4 +32,3 @@
 .mahalanobis <- function(Ar) {
     .Call(`_fastDist_mahalanobis`, Ar)
 }
-
