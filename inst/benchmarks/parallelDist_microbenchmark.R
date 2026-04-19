@@ -10,7 +10,6 @@ benchmark_result <- benchmark_parallelDist(
   n_features = 1000L,
   # b_sizes = c(1000L, 5000L, 10000L, 20000L),
   b_sizes = c(1000L, 5000L, 10000L, 20000L),
-  methods = c("euclidean", "manhattan", "minkowski"),
   minkowski_p = 3,
   times = 1L,
   unit = "s",
