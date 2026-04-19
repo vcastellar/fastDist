@@ -29,6 +29,10 @@ fdistregistry$set_entry(method = "correlation",
                         fun    = .correlation,
                         description = "distancia de correlacion")
 
+fdistregistry$set_entry(method = "cosine",  
+                        fun    = .cosine,
+                        description = "distancia del coseno")
+
 fdistregistry$set_entry(method = "canberra",  
                         fun    = .canberra,
                         description = "distancia de canberra")
@@ -41,7 +45,6 @@ fdistregistry$set_entry(method = "supremum",
 fdistregistry$set_entry(method = "mahalanobis",  
                         fun    = .mahalanobis,
                         description = "distancia de Mahalanobis")
-
 
 
 
