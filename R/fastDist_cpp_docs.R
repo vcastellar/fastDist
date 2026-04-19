@@ -1,161 +1,161 @@
-#' Distancia euclidiana interna (.euclidean)
+#' Internal Euclidean distance backend (.euclidean)
 #'
 #' @name .euclidean
 #' @description
-#' Calcula la distancia euclidiana entre cada par de filas de `Ar` y `Br`.
+#' Computes the Euclidean distance between each pair of rows in `Ar` and `Br`.
 #' @details
-#' Para dos observaciones \eqn{x, y \in \mathbb{R}^k}, la distancia euclidiana
-#' se define como:
+#' For two observations \eqn{x, y \in \mathbb{R}^k}, the Euclidean distance is
+#' defined as:
 #' \deqn{d(x, y) = \sqrt{\sum_{i=1}^{k}(x_i - y_i)^2}}
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
-#' @param Ar Matriz numérica de tamaño `m x k` con observaciones por fila.
-#' @param Br Matriz numérica de tamaño `n x k` con observaciones por fila.
+#' @param Ar Numeric matrix of size `m x k` with observations in rows.
+#' @param Br Numeric matrix of size `n x k` with observations in rows.
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .euclidean(Ar, Br)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia Manhattan interna (.manhattan)
+#' Internal Manhattan distance backend (.manhattan)
 #'
 #' @name .manhattan
 #' @description
-#' Calcula la distancia Manhattan (norma \eqn{L_1}) entre filas de `Ar` y `Br`.
+#' Computes the Manhattan distance (\eqn{L_1} norm) between rows of `Ar` and `Br`.
 #' @details
-#' Para dos observaciones \eqn{x, y \in \mathbb{R}^k}, la distancia Manhattan
-#' se define como:
+#' For two observations \eqn{x, y \in \mathbb{R}^k}, the Manhattan distance is
+#' defined as:
 #' \deqn{d(x, y) = \sum_{i=1}^{k}|x_i - y_i|}
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
 #' @inheritParams .euclidean
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .manhattan(Ar, Br)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia Minkowski interna (.minkowski)
+#' Internal Minkowski distance backend (.minkowski)
 #'
 #' @name .minkowski
 #' @description
-#' Calcula la distancia Minkowski entre filas de `Ar` y `Br` para un valor `p`.
+#' Computes the Minkowski distance between rows of `Ar` and `Br` for a given `p`.
 #' @details
-#' Para \eqn{p > 0} y observaciones \eqn{x, y \in \mathbb{R}^k}, la distancia
-#' Minkowski se define como:
+#' For \eqn{p > 0} and observations \eqn{x, y \in \mathbb{R}^k}, the Minkowski
+#' distance is defined as:
 #' \deqn{d(x, y) = \left(\sum_{i=1}^{k}|x_i - y_i|^p\right)^{1/p}}
-#' Casos particulares: \eqn{p=1} (Manhattan) y \eqn{p=2} (Euclidiana).
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' Special cases include \eqn{p=1} (Manhattan) and \eqn{p=2} (Euclidean).
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
 #' @inheritParams .euclidean
-#' @param p Orden de la distancia Minkowski, con `p > 0`.
+#' @param p Order of the Minkowski distance, with `p > 0`.
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .minkowski(Ar, Br, p)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia de correlación interna (.correlation)
+#' Internal correlation distance backend (.correlation)
 #'
 #' @name .correlation
 #' @description
-#' Calcula la distancia de correlación entre filas de `Ar` y `Br`.
+#' Computes the correlation distance between rows of `Ar` and `Br`.
 #' @details
-#' La distancia de correlación se define como uno menos la correlación de Pearson:
+#' Correlation distance is defined as one minus the Pearson correlation:
 #' \deqn{d(x, y) = 1 - \mathrm{corr}(x, y)}
-#' donde
+#' where
 #' \deqn{\mathrm{corr}(x, y) =
 #' \frac{\sum_{i=1}^{k}(x_i - \bar{x})(y_i - \bar{y})}
 #' {\sqrt{\sum_{i=1}^{k}(x_i - \bar{x})^2}\sqrt{\sum_{i=1}^{k}(y_i - \bar{y})^2}}}
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
 #' @inheritParams .euclidean
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .correlation(Ar, Br)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia del coseno interna (.cosine)
+#' Internal cosine distance backend (.cosine)
 #'
 #' @name .cosine
 #' @description
-#' Calcula la distancia del coseno entre filas de `Ar` y `Br`.
+#' Computes the cosine distance between rows of `Ar` and `Br`.
 #' @details
-#' La distancia del coseno se define como:
+#' Cosine distance is defined as:
 #' \deqn{d(x, y) = 1 - \frac{x \cdot y}{\|x\|_2\|y\|_2}}
-#' donde \eqn{x \cdot y} es el producto punto y \eqn{\|\cdot\|_2} es la norma
-#' euclidiana.
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' where \eqn{x \cdot y} is the dot product and \eqn{\|\cdot\|_2} is the
+#' Euclidean norm.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
 #' @inheritParams .euclidean
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .cosine(Ar, Br)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia Canberra interna (.canberra)
+#' Internal Canberra distance backend (.canberra)
 #'
 #' @name .canberra
 #' @description
-#' Calcula la distancia Canberra entre filas de `Ar` y `Br`.
+#' Computes the Canberra distance between rows of `Ar` and `Br`.
 #' @details
-#' Para observaciones \eqn{x, y \in \mathbb{R}^k}, la distancia Canberra se define
-#' como:
+#' For observations \eqn{x, y \in \mathbb{R}^k}, the Canberra distance is defined
+#' as:
 #' \deqn{d(x, y) = \sum_{i=1}^{k}
 #' \frac{|x_i - y_i|}{|x_i| + |y_i|}}
-#' En la implementación, los términos con denominador cero no aportan al total.
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' In the implementation, terms with a zero denominator are skipped.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
 #' @inheritParams .euclidean
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .canberra(Ar, Br)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia suprema interna (.supremum)
+#' Internal supremum distance backend (.supremum)
 #'
 #' @name .supremum
 #' @description
-#' Calcula la distancia suprema (Chebyshev, norma \eqn{L_\infty}) entre filas de
-#' `Ar` y `Br`.
+#' Computes the supremum (Chebyshev, \eqn{L_\infty}) distance between rows of
+#' `Ar` and `Br`.
 #' @details
-#' Para observaciones \eqn{x, y \in \mathbb{R}^k}, la distancia suprema se define
-#' como:
+#' For observations \eqn{x, y \in \mathbb{R}^k}, the supremum distance is defined
+#' as:
 #' \deqn{d(x, y) = \max_{i=1,\ldots,k}|x_i - y_i|}
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
 #' @inheritParams .euclidean
 #'
-#' @return Matriz numérica `m x n` con distancias por pares.
+#' @return Numeric `m x n` matrix with pairwise distances.
 #' @usage .supremum(Ar, Br)
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Distancia Mahalanobis interna (.mahalanobis)
+#' Internal Mahalanobis distance backend (.mahalanobis)
 #'
 #' @name .mahalanobis
 #' @description
-#' Calcula la matriz de distancias de Mahalanobis entre todas las filas de `Ar`.
+#' Computes the Mahalanobis distance matrix between all rows in `Ar`.
 #' @details
-#' Sea \eqn{S} la matriz de covarianza muestral de `Ar`, y \eqn{S^{-1}} su inversa.
-#' Para dos observaciones \eqn{x, y \in \mathbb{R}^k}, la distancia de Mahalanobis
-#' se define como:
+#' Let \eqn{S} be the sample covariance matrix of `Ar`, and \eqn{S^{-1}} its
+#' inverse. For two observations \eqn{x, y \in \mathbb{R}^k}, Mahalanobis
+#' distance is defined as:
 #' \deqn{d(x, y) = \sqrt{(x - y)^\top S^{-1}(x - y)}}
-#' Esta función es un backend interno implementado en C++ y expuesto vía Rcpp.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
 #'
-#' @param Ar Matriz numérica de tamaño `m x k` con observaciones por fila.
+#' @param Ar Numeric matrix of size `m x k` with observations in rows.
 #'
-#' @return Matriz numérica cuadrada `m x m` con distancias por pares.
+#' @return Numeric square `m x m` matrix with pairwise distances.
 #' @usage .mahalanobis(Ar)
 #' @keywords internal
 #' @noRd
