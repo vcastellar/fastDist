@@ -11,7 +11,6 @@ fdistregistry$set_field("p",
 fdistregistry$set_field("description", 
                          type = "character", is_key = FALSE)
 
-Rcpp::sourceCpp("src/fastDist.cpp")
 fdistregistry$set_entry(method = "euclidean",  
                         fun    = .euclidean,
                         description = "distancia euclidea")
