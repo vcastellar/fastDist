@@ -15,6 +15,7 @@
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .euclidean(Ar, Br)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia Manhattan interna (.manhattan)
@@ -33,6 +34,7 @@ NULL
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .manhattan(Ar, Br)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia Minkowski interna (.minkowski)
@@ -53,6 +55,7 @@ NULL
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .minkowski(Ar, Br, p)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia de correlación interna (.correlation)
@@ -74,6 +77,7 @@ NULL
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .correlation(Ar, Br)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia del coseno interna (.cosine)
@@ -93,6 +97,7 @@ NULL
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .cosine(Ar, Br)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia Canberra interna (.canberra)
@@ -113,6 +118,7 @@ NULL
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .canberra(Ar, Br)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia suprema interna (.supremum)
@@ -132,6 +138,7 @@ NULL
 #' @return Matriz numérica `m x n` con distancias por pares.
 #' @usage .supremum(Ar, Br)
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Distancia Mahalanobis interna (.mahalanobis)
@@ -151,4 +158,5 @@ NULL
 #' @return Matriz numérica cuadrada `m x m` con distancias por pares.
 #' @usage .mahalanobis(Ar)
 #' @keywords internal
+#' @noRd
 NULL
