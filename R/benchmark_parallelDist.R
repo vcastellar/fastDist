@@ -1,5 +1,23 @@
+.parallelDist_method_map <- function() {
+  c(
+    euclidean = "euclidean",
+    manhattan = "manhattan",
+    minkowski = "minkowski",
+    correlation = "correlation",
+    cosine = "cosine",
+    canberra = "canberra",
+    supremum = "maximum"
+  )
+}
+
+.supported_parallelDist_methods <- function() {
+  map <- .parallelDist_method_map()
+  implemented <- fdistregistry$get_entry_names()
+  intersect(names(map), implemented)
+}
+
 .validate_distance_method <- function(method) {
-  valid_methods <- c("euclidean", "manhattan", "minkowski")
+  valid_methods <- .supported_parallelDist_methods()
   if (!method %in% valid_methods) {
     stop(sprintf(
       "method must be one of %s",
@@ -41,6 +59,8 @@ crossdist_parallelDist <- function(A,
   }
 
   .validate_distance_method(method)
+  method_map <- .parallelDist_method_map()
+  parallel_method <- unname(method_map[[method]])
 
   A <- as.matrix(A)
   B <- as.matrix(B)
@@ -69,7 +89,7 @@ crossdist_parallelDist <- function(A,
 
     call_args <- list(
       x = combined,
-      method = method,
+      method = parallel_method,
       threads = threads
     )
 
@@ -93,7 +113,7 @@ benchmark_parallelDist <- function(A = NULL,
                                    a_nrow = 1000L,
                                    n_features = 1000L,
                                    b_sizes = c(1000L, 5000L, 10000L, 20000L),
-                                   methods = c("euclidean", "manhattan", "minkowski"),
+                                   methods = .supported_parallelDist_methods(),
                                    minkowski_p = 3,
                                    times = 1L,
                                    seed = 123,
@@ -104,7 +124,7 @@ benchmark_parallelDist <- function(A = NULL,
   .require_benchmark_packages()
 
   methods <- unique(methods)
-  invalid_methods <- setdiff(methods, c("euclidean", "manhattan", "minkowski"))
+  invalid_methods <- setdiff(methods, .supported_parallelDist_methods())
   if (length(invalid_methods) > 0) {
     stop(
       sprintf(

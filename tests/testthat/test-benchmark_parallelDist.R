@@ -22,6 +22,18 @@ test_that("crossdist_parallelDist matches fastDist on small matrices", {
     fdist(A, B, method = "minkowski", p = 3),
     tolerance = 1e-8
   )
+
+  expect_equal(
+    crossdist_parallelDist(A, B, method = "cosine", block_size = 3L),
+    fdist(A, B, method = "cosine"),
+    tolerance = 1e-8
+  )
+
+  expect_equal(
+    crossdist_parallelDist(A, B, method = "supremum", block_size = 3L),
+    fdist(A, B, method = "supremum"),
+    tolerance = 1e-8
+  )
 })
 
 test_that("benchmark_parallelDist returns a summary for each method and B size", {
