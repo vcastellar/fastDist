@@ -1,18 +1,18 @@
-#' Distancias rápidas entre observaciones
+#' Fast Distance Computation Between Observations
 #'
-#' Calcula distancias entre filas de `A` y `B` usando una implementación
-#' registrada en `fdistregistry`. Si `method = "mahalanobis"`, el cálculo se
-#' realiza con la firma específica de ese método.
+#' Computes pairwise distances between rows of `A` and `B` using a distance
+#' backend registered in `fdistregistry`. When `method = "mahalanobis"`, the
+#' function dispatches to the method-specific signature that only requires `A`.
 #'
-#' @param A Matriz o estructura coercible a matriz con las observaciones de
-#'   origen (filas).
-#' @param B Matriz o estructura coercible a matriz con las observaciones de
-#'   destino (filas). Si es `NULL`, se usa `A`.
-#' @param method Nombre del método de distancia registrado en `fdistregistry`.
-#' @param p Parámetro adicional para métodos que lo requieren (por ejemplo,
-#'   Minkowski).
+#' @param A A matrix (or object coercible to a matrix) containing source
+#'   observations in rows.
+#' @param B A matrix (or object coercible to a matrix) containing target
+#'   observations in rows. If `NULL`, `A` is used.
+#' @param method The name of a distance method registered in `fdistregistry`.
+#' @param p Optional extra parameter used by methods that require it (for
+#'   example, Minkowski).
 #'
-#' @return Una matriz numérica con las distancias calculadas.
+#' @return A numeric matrix containing computed distances.
 #' @export
 fdist <- function(A, B = NULL, method, p = NULL) {
   if (!method %in% fdistregistry$get_entry_names()) {

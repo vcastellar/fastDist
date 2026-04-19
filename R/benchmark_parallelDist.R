@@ -1,3 +1,13 @@
+#' Validate distance method names
+#'
+#' Checks that `method` belongs to the set of supported methods for
+#' `parallelDist` benchmarking.
+#'
+#' @param method Character scalar with the distance method name.
+#'
+#' @return Invisibly returns `NULL`; throws an error if validation fails.
+#' @keywords internal
+#' @noRd
 .validate_distance_method <- function(method) {
   valid_methods <- c("euclidean", "manhattan", "minkowski")
   if (!method %in% valid_methods) {
@@ -8,6 +18,14 @@
   }
 }
 
+#' Ensure benchmark dependencies are available
+#'
+#' Verifies that required benchmarking packages are installed.
+#'
+#' @return Invisibly returns `NULL`; throws an error when dependencies are
+#'   missing.
+#' @keywords internal
+#' @noRd
 .require_benchmark_packages <- function() {
   missing_packages <- c()
 
@@ -30,6 +48,24 @@
   }
 }
 
+#' Compute Cross Distances with `parallelDist` in Blocks
+#'
+#' Computes pairwise distances between rows of `A` and rows of `B` using
+#' `parallelDist::parDist()`, processing `B` by blocks to reduce memory
+#' pressure.
+#'
+#' @param A Numeric matrix (or matrix-like object) of source observations.
+#' @param B Numeric matrix (or matrix-like object) of target observations.
+#' @param method Distance method. Supported values are `"euclidean"`,
+#'   `"manhattan"`, and `"minkowski"`.
+#' @param p Minkowski exponent. Required when `method = "minkowski"`.
+#' @param threads Optional number of threads passed to
+#'   `parallelDist::parDist()`.
+#' @param block_size Number of rows of `B` processed per iteration. If `NULL`,
+#'   defaults to `nrow(A)`.
+#'
+#' @return A numeric matrix of size `nrow(A) x nrow(B)` with cross distances.
+#' @export
 crossdist_parallelDist <- function(A,
                                    B,
                                    method = "euclidean",
@@ -88,6 +124,33 @@ crossdist_parallelDist <- function(A,
   result
 }
 
+#' Benchmark `fastDist` vs `parallelDist`
+#'
+#' Runs benchmarking experiments comparing [`fdist()`] and
+#' [`crossdist_parallelDist()`] across multiple methods and `B` matrix sizes.
+#' Optional correctness checks can verify numerical agreement before timing.
+#'
+#' @param A Optional numeric matrix of source observations. If `NULL`, a random
+#'   matrix is generated.
+#' @param B Optional numeric matrix of target observations. If `NULL`, a random
+#'   matrix is generated.
+#' @param a_nrow Number of rows to generate for `A` when `A` is `NULL`.
+#' @param n_features Number of columns/features for generated matrices.
+#' @param b_sizes Integer vector with the evaluated numbers of rows for `B`.
+#' @param methods Character vector of methods to benchmark. Supported values are
+#'   `"euclidean"`, `"manhattan"`, and `"minkowski"`.
+#' @param minkowski_p Exponent used when benchmarking the Minkowski distance.
+#' @param times Number of repetitions passed to `microbenchmark`.
+#' @param seed Random seed used when generating `A` and `B`.
+#' @param unit Time unit for benchmark results (passed to `microbenchmark`).
+#' @param threads Optional number of threads for `parallelDist`.
+#' @param block_size Optional block size used by [`crossdist_parallelDist()`].
+#' @param check Logical; if `TRUE`, validate that both implementations produce
+#'   equivalent results before timing.
+#'
+#' @return A list with benchmark parameters, a summary table, raw benchmark
+#'   objects, and the matrices used in the benchmark run.
+#' @export
 benchmark_parallelDist <- function(A = NULL,
                                    B = NULL,
                                    a_nrow = 1000L,
