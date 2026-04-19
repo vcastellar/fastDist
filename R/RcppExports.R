@@ -2,34 +2,34 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .euclidean <- function(Ar, Br) {
-    .Call("_fastDist_euclidean", Ar, Br, PACKAGE = "fastDist")
+    .Call(`_fastDist_euclidean`, Ar, Br)
 }
 
 .manhattan <- function(Ar, Br) {
-    .Call("_fastDist_manhattan", Ar, Br, PACKAGE = "fastDist")
+    .Call(`_fastDist_manhattan`, Ar, Br)
 }
 
 .minkowski <- function(Ar, Br, p) {
-    .Call("_fastDist_minkowski", Ar, Br, p, PACKAGE = "fastDist")
+    .Call(`_fastDist_minkowski`, Ar, Br, p)
 }
 
 .correlation <- function(Ar, Br) {
-    .Call("_fastDist_correlation", Ar, Br, PACKAGE = "fastDist")
+    .Call(`_fastDist_correlation`, Ar, Br)
 }
 
 .cosine <- function(Ar, Br) {
-    .Call("_fastDist_cosine", Ar, Br, PACKAGE = "fastDist")
+    .Call(`_fastDist_cosine`, Ar, Br)
 }
 
 .canberra <- function(Ar, Br) {
-    .Call("_fastDist_canberra", Ar, Br, PACKAGE = "fastDist")
+    .Call(`_fastDist_canberra`, Ar, Br)
 }
 
 .supremum <- function(Ar, Br) {
-    .Call("_fastDist_supremum", Ar, Br, PACKAGE = "fastDist")
+    .Call(`_fastDist_supremum`, Ar, Br)
 }
 
 .mahalanobis <- function(Ar) {
-    .Call("_fastDist_mahalanobis", Ar, PACKAGE = "fastDist")
+    .Call(`_fastDist_mahalanobis`, Ar)
 }
 
