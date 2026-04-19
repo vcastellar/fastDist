@@ -32,3 +32,4 @@
 .mahalanobis <- function(Ar) {
     .Call("_fastDist_mahalanobis", Ar, PACKAGE = "fastDist")
 }
+
