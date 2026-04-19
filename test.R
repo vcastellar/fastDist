@@ -71,13 +71,13 @@ res <- microbenchmark(
   # proxy_supremum     = proxy::dist(A, B, method = "Supremum"),
   # fastDist_mahalanobis = fdist(A, method = "mahalanobis"),
   # proxy_mahalanobis    = proxy::dist(A, method = "mahalanobis"),
-  times = 10
+  times = 20
 )
 autoplot(res)
 
 
 #------------------------------------------------------------------------------
-B <- matrix(rnorm(500000), 5000, 100)
+B <- matrix(rnorm(5000000), 5000, 1000)
 A <- matrix(rnorm(40000), 400, 100)
 
 rows <- seq(1, 100, 10) * 1e2
