@@ -17,18 +17,16 @@ fdist(A, B, method = "supremum")
 proxy::dist(A,B, method = "Supremum")
 
 (X <- fdist(A, method = "euclidean"))
-(Y <- distf(A, method = "euclidean"))
 proxy::dist(A,  method = "Euclidean")
 
 fdist(A, method = "manhattan")
 fdist(A, B, method = "manhattan")
-distf(A, B, method = "manhattan")
+
 
 
 proxy::dist(A, method = "Manhattan")
 proxy::dist(A, B, method = "Manhattan")
 
-distf(A, method = "manhattan")
 
 fdist(A, p = 5, method = "minkowski")
 proxy::dist(A,  method = "Minkowski", p = 5)
@@ -77,25 +75,30 @@ autoplot(res)
 
 
 #------------------------------------------------------------------------------
-B <- matrix(rnorm(5000000), 5000, 1000)
+B <- matrix(rnorm(1000000), 1000, 1000)
 A <- matrix(rnorm(40000), 400, 100)
 
 rows <- seq(1, 100, 10) * 1e2
 cols <- 100
 
 res <- microbenchmark(
-  fastDist_euclidean = fdist(B, method = "euclidean"),
-  fastDist_manhattan = fdist(B, method = "manhattan"),
-  #fastDist_mahalanobis = fdist(B, method = "mahalanobis"),
+  fastDist_euclidean   = fdist(B, method = "euclidean"),
+  fastDist_manhattan   = fdist(B, method = "manhattan"),
+  fastDist_correlation = fdist(B, method = "correlation"),
+  fastDist_caberra     = fdist(B, method = "canberra"),
+  fastDist_supremum   = fdist(B, method = "supremum"),
+
   
   parallel_euclidean = parDist(B, method = "euclidean"),
-  parallel_mahattan = parDist(B, method = "manhattan"),
-  #parallel_mahalanobis = parDist(B,  method = "mahalanobis"),
+  parallel_mahattan  = parDist(B, method = "manhattan"),
+  parallel_canberra  = parDist(B, method = "canberra"),
+  parallel_maximum   = parDist(B, method = "maximum"),
+
 
  ## proxy_euclidean    = proxy::dist(B, method = "Euclidean"),
  ##  proxy_manhattan    = proxy::dist(B, method = "Manhattan"),
 
-  times = 10
+  times = 50
 )
 autoplot(res)
 
