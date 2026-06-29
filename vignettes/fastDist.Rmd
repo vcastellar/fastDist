@@ -1,0 +1,132 @@
+---
+title: "Computing pairwise distances with fastDist"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Computing pairwise distances with fastDist}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+`fastDist` computes pairwise distances between the rows of two matrices `A`
+and `B`. The single entry point is `fdist()`, which dispatches to C++ backends
+implemented with [RcppArmadillo](https://cran.r-project.org/package=RcppArmadillo)
+and parallelised with OpenMP where available.
+
+Given an `m x k` matrix `A` and an `n x k` matrix `B`, `fdist()` returns an
+`m x n` matrix whose entry `[i, j]` is the distance between row `i` of `A` and
+row `j` of `B`. When `B` is omitted, distances are computed within the rows of
+`A` (the result is then a symmetric `m x m` matrix with a zero diagonal).
+
+```{r}
+library(fastDist)
+```
+
+## A first example
+
+```{r}
+set.seed(1)
+A <- matrix(rnorm(5 * 3), nrow = 5, ncol = 3)
+B <- matrix(rnorm(4 * 3), nrow = 4, ncol = 3)
+
+# pairwise Euclidean distances between the rows of A and B
+fdist(A, B, method = "euclidean")
+```
+
+Calling `fdist()` with a single matrix computes the full pairwise distance
+matrix within its rows:
+
+```{r}
+fdist(A, method = "euclidean")
+```
+
+## Supported methods
+
+`fdist()` selects the distance via the `method` argument. The available
+methods are:
+
+```{r}
+fdistregistry$get_entry_names()
+```
+
+A short description of each is stored in the registry:
+
+```{r}
+methods <- fdistregistry$get_entry_names()
+descriptions <- vapply(
+  methods,
+  function(m) fdistregistry$get_entry(m)$description,
+  character(1)
+)
+data.frame(method = methods, description = descriptions, row.names = NULL)
+```
+
+### Minkowski distance and the `p` argument
+
+The `p` argument is only used by `method = "minkowski"` and sets the order of
+the metric. `p = 1` recovers the Manhattan distance and `p = 2` the Euclidean
+distance:
+
+```{r}
+fdist(A, B, method = "minkowski", p = 1)
+fdist(A, B, method = "manhattan")
+```
+
+### Distances for non-negative / compositional data
+
+Some methods (`bray_curtis`, `hellinger`, `chi_squared`, `jensen_shannon`)
+are intended for non-negative data such as histograms, abundances or
+distributions:
+
+```{r}
+P <- matrix(runif(5 * 4, 0.1, 5), nrow = 5)
+Q <- matrix(runif(3 * 4, 0.1, 5), nrow = 3)
+fdist(P, Q, method = "jensen_shannon")
+```
+
+### Haversine distance
+
+The `haversine` method computes great-circle distances in kilometres between
+points given as `(latitude, longitude)` in degrees. The input must have
+exactly two columns:
+
+```{r}
+cities <- matrix(
+  c(40.4168, -3.7038,   # Madrid
+    41.3851,  2.1734,   # Barcelona
+    48.8566,  2.3522),  # Paris
+  ncol = 2, byrow = TRUE
+)
+fdist(cities, method = "haversine")
+```
+
+### Mahalanobis distance
+
+`method = "mahalanobis"` always works within the rows of `A` (any `B` is
+ignored) and uses the sample covariance matrix estimated from `A`:
+
+```{r}
+fdist(A, method = "mahalanobis")
+```
+
+## Performance
+
+`fastDist` is designed to be fast for large matrices. A reproducible
+benchmark comparing `fdist()` against `parallelDist::parDist()` for the
+Euclidean, Manhattan and Minkowski methods is available in
+`benchmark/benchmark_parallelDist.R` in the package sources. See the package
+README for an example of the results.
+
+## Session information
+
+```{r}
+sessionInfo()
+```

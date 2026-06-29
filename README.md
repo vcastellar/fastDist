@@ -2,7 +2,7 @@
 Fast computation of distances between the rows of two matrices
 
 # benchmark
-Computation time (seconds) of distances between the rows of a 10000x100 matrix. Comparison of different methods between the fastDist package and proxy. The test uses the microbenchmark package. Run on an Intel i5 10400 processor
+Computation time (seconds) of distances between the rows of a 10000x100 matrix. Comparison of different methods between the fastDist package and parallelDist. The test uses the microbenchmark package. Run on an Intel i5 10400 processor
 
 | expr          | method     | mean       | b_rows | a_rows | n_features |
 |---------------|------------|------------|--------|--------|------------|
@@ -33,8 +33,9 @@ Computation time (seconds) of distances between the rows of a 10000x100 matrix. 
 
 ## benchmark fastDist vs parallelDist
 
-A reproducible benchmark was added to compare `fastDist` against `parallelDist`
-when computing distances between the rows of `A` and `B` for the methods:
+A reproducible benchmark script (`benchmark/benchmark_parallelDist.R`) compares
+`fastDist` against `parallelDist` when computing distances between the rows of
+`A` and `B` for the methods:
 
 - Euclidean
 - Manhattan
