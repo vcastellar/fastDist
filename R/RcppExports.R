@@ -29,6 +29,38 @@
     .Call(`_fastDist_supremum`, Ar, Br)
 }
 
+.squared_euclidean <- function(Ar, Br) {
+    .Call(`_fastDist_squared_euclidean`, Ar, Br)
+}
+
+.braycurtis <- function(Ar, Br) {
+    .Call(`_fastDist_braycurtis`, Ar, Br)
+}
+
+.hellinger <- function(Ar, Br) {
+    .Call(`_fastDist_hellinger`, Ar, Br)
+}
+
+.chisquared <- function(Ar, Br) {
+    .Call(`_fastDist_chisquared`, Ar, Br)
+}
+
+.jensenshannon <- function(Ar, Br) {
+    .Call(`_fastDist_jensenshannon`, Ar, Br)
+}
+
+.haversine <- function(Ar, Br) {
+    .Call(`_fastDist_haversine`, Ar, Br)
+}
+
+.standardized_euclidean <- function(Ar, Br) {
+    .Call(`_fastDist_standardized_euclidean`, Ar, Br)
+}
+
+.spearman <- function(Ar, Br) {
+    .Call(`_fastDist_spearman`, Ar, Br)
+}
+
 .mahalanobis <- function(Ar) {
     .Call(`_fastDist_mahalanobis`, Ar)
 }

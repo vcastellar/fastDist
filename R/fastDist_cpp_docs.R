@@ -141,6 +141,167 @@ NULL
 #' @noRd
 NULL
 
+#' Internal squared Euclidean distance backend (.squared_euclidean)
+#'
+#' @name .squared_euclidean
+#' @description
+#' Computes the squared Euclidean distance between rows of `Ar` and `Br`.
+#' @details
+#' For observations \eqn{x, y \in \mathbb{R}^k}:
+#' \deqn{d(x, y) = \sum_{i=1}^{k}(x_i - y_i)^2}
+#' This is the Euclidean distance without the final square root, computed via
+#' the identity \eqn{(x - y)^2 = x^2 - 2xy + y^2}.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .squared_euclidean(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Bray-Curtis distance backend (.braycurtis)
+#'
+#' @name .braycurtis
+#' @description
+#' Computes the Bray-Curtis dissimilarity between rows of `Ar` and `Br`.
+#' @details
+#' For observations \eqn{x, y \in \mathbb{R}^k}:
+#' \deqn{d(x, y) = \frac{\sum_{i=1}^{k}|x_i - y_i|}{\sum_{i=1}^{k}|x_i + y_i|}}
+#' A zero denominator yields a distance of `0`.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .braycurtis(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Hellinger distance backend (.hellinger)
+#'
+#' @name .hellinger
+#' @description
+#' Computes the Hellinger distance between rows of `Ar` and `Br`. Inputs are
+#' assumed to be non-negative.
+#' @details
+#' For non-negative observations \eqn{x, y \in \mathbb{R}^k}:
+#' \deqn{d(x, y) = \frac{1}{\sqrt{2}}
+#' \sqrt{\sum_{i=1}^{k}(\sqrt{x_i} - \sqrt{y_i})^2}}
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .hellinger(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal chi-squared distance backend (.chisquared)
+#'
+#' @name .chisquared
+#' @description
+#' Computes the symmetric chi-squared distance between rows of `Ar` and `Br`.
+#' @details
+#' For observations \eqn{x, y \in \mathbb{R}^k}:
+#' \deqn{d(x, y) = \frac{1}{2}\sum_{i=1}^{k}\frac{(x_i - y_i)^2}{x_i + y_i}}
+#' Terms with a zero denominator are skipped.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .chisquared(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Jensen-Shannon distance backend (.jensenshannon)
+#'
+#' @name .jensenshannon
+#' @description
+#' Computes the Jensen-Shannon distance between rows of `Ar` and `Br`. Each row
+#' is normalized to sum to one before the computation.
+#' @details
+#' Let \eqn{m = (x + y)/2}. The Jensen-Shannon distance is the square root of the
+#' Jensen-Shannon divergence (natural logarithm):
+#' \deqn{d(x, y) = \sqrt{\tfrac{1}{2}\sum_i x_i\log\frac{x_i}{m_i}
+#' + \tfrac{1}{2}\sum_i y_i\log\frac{y_i}{m_i}}}
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .jensenshannon(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Haversine distance backend (.haversine)
+#'
+#' @name .haversine
+#' @description
+#' Computes the great-circle (Haversine) distance in kilometres between rows of
+#' `Ar` and `Br`. Both matrices must have exactly two columns holding latitude
+#' and longitude in degrees.
+#' @details
+#' With latitudes/longitudes in radians and Earth radius \eqn{R = 6371} km:
+#' \deqn{a = \sin^2\!\big(\tfrac{\Delta\phi}{2}\big)
+#' + \cos\phi_1\cos\phi_2\sin^2\!\big(\tfrac{\Delta\lambda}{2}\big),\quad
+#' d = 2R\,\mathrm{asin}(\sqrt{a})}
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @param Ar Numeric matrix of size `m x 2` with `(latitude, longitude)` rows.
+#' @param Br Numeric matrix of size `n x 2` with `(latitude, longitude)` rows.
+#'
+#' @return Numeric `m x n` matrix with pairwise distances in kilometres.
+#' @usage .haversine(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal standardized Euclidean distance backend (.standardized_euclidean)
+#'
+#' @name .standardized_euclidean
+#' @description
+#' Computes the standardized Euclidean distance between rows of `Ar` and `Br`,
+#' scaling each feature by its sample variance estimated from `Ar`.
+#' @details
+#' Let \eqn{s_c^2} be the sample variance of column `c` of `Ar`. Then:
+#' \deqn{d(x, y) = \sqrt{\sum_{c=1}^{k}\frac{(x_c - y_c)^2}{s_c^2}}}
+#' Features with zero variance are dropped.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .standardized_euclidean(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Spearman correlation distance backend (.spearman)
+#'
+#' @name .spearman
+#' @description
+#' Computes the Spearman correlation distance between rows of `Ar` and `Br`.
+#' @details
+#' Each row is replaced by its within-row average ranks, and the Pearson
+#' correlation \eqn{\rho_s} is computed on those ranks:
+#' \deqn{d(x, y) = 1 - \rho_s(x, y)}
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .spearman(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
 #' Internal Mahalanobis distance backend (.mahalanobis)
 #'
 #' @name .mahalanobis

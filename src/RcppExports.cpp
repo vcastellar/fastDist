@@ -96,6 +96,102 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// squared_euclidean
+NumericMatrix squared_euclidean(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_squared_euclidean(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(squared_euclidean(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// braycurtis
+NumericMatrix braycurtis(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_braycurtis(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(braycurtis(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hellinger
+NumericMatrix hellinger(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_hellinger(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(hellinger(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// chisquared
+NumericMatrix chisquared(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_chisquared(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(chisquared(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// jensenshannon
+NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_jensenshannon(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(jensenshannon(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// haversine
+NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_haversine(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(haversine(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// standardized_euclidean
+NumericMatrix standardized_euclidean(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_standardized_euclidean(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(standardized_euclidean(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spearman
+NumericMatrix spearman(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_spearman(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(spearman(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mahalanobis
 NumericMatrix mahalanobis(NumericMatrix Ar);
 RcppExport SEXP _fastDist_mahalanobis(SEXP ArSEXP) {
@@ -116,6 +212,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_cosine", (DL_FUNC) &_fastDist_cosine, 2},
     {"_fastDist_canberra", (DL_FUNC) &_fastDist_canberra, 2},
     {"_fastDist_supremum", (DL_FUNC) &_fastDist_supremum, 2},
+    {"_fastDist_squared_euclidean", (DL_FUNC) &_fastDist_squared_euclidean, 2},
+    {"_fastDist_braycurtis", (DL_FUNC) &_fastDist_braycurtis, 2},
+    {"_fastDist_hellinger", (DL_FUNC) &_fastDist_hellinger, 2},
+    {"_fastDist_chisquared", (DL_FUNC) &_fastDist_chisquared, 2},
+    {"_fastDist_jensenshannon", (DL_FUNC) &_fastDist_jensenshannon, 2},
+    {"_fastDist_haversine", (DL_FUNC) &_fastDist_haversine, 2},
+    {"_fastDist_standardized_euclidean", (DL_FUNC) &_fastDist_standardized_euclidean, 2},
+    {"_fastDist_spearman", (DL_FUNC) &_fastDist_spearman, 2},
     {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 1},
     {NULL, NULL, 0}
 };
