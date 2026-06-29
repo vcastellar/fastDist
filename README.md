@@ -40,18 +40,10 @@ when computing distances between the rows of `A` and `B` for the methods:
 - Manhattan
 - Minkowski
 
-The script is located at `inst/benchmarks/parallelDist_microbenchmark.R` and runs the case:
+The benchmark runs the case:
 
 - `A`: `1000 x 1000`
 - `B`: `1000`, `5000`, `10000` and `20000` rows
-
-Suggested usage:
-
-```r
-install.packages(c("microbenchmark", "parallelDist"))
-devtools::load_all(".")
-source("inst/benchmarks/parallelDist_microbenchmark.R")
-```
 
 Internally, the comparison with `parallelDist` is solved in blocks over the rows
 of `B`, because `parallelDist::parDist()` computes square distance matrices. This

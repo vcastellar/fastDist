@@ -5,9 +5,6 @@
 \description{
   Function for calculating Euclidean distances between the rows of two matrices
 }
-\usage{
-fastPDist2(A, B)
-}
 \arguments{
   \item{A}{numerical matrix with dimensions \code{(m, k)} }
   \item{B}{numerical matrix with dimensions \code{(n, k)} }
@@ -23,11 +20,6 @@ fastPDist2(A, B)
 }
 \references{
   See the documentation for Armadillo, and RcppArmadillo, for more details.
-}
-\examples{
-  A <- matrix(rnorm(5000), 500, 10)
-  B <- matrix(rnorm(1000), 100, 10)
-  fastPdist2(A, B)
 }
 \author{Vicente Castellar Sebastiá}
 
