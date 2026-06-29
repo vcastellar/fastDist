@@ -1,15 +1,27 @@
 Package: fastDist
 Type: Package
-Title: What the package does (short line)
+Title: Fast Pairwise Distances Between the Rows of Two Matrices
 Version: 1.0
 Date: 2021-03-19
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Authors@R:
+    person("Vicente", "Castellar Sebastia", role = c("aut", "cre"),
+           email = "vic.sebastia@gmail.com")
+Maintainer: Vicente Castellar Sebastia <vic.sebastia@gmail.com>
+Description: Fast computation of pairwise distances between the rows of two
+    matrices. A single entry point, fdist(), dispatches to C++ backends
+    (built on RcppArmadillo and OpenMP) for a range of distance metrics,
+    including Euclidean, Manhattan, Minkowski, correlation, cosine, Canberra,
+    supremum, squared Euclidean, Bray-Curtis, Hellinger, chi-squared,
+    Jensen-Shannon, Haversine, standardized Euclidean, Spearman and
+    Mahalanobis distances.
+License: GPL-3
 Imports: Rcpp (>= 1.0.0)
 LinkingTo: Rcpp, RcppArmadillo, registry, parallel
 Suggests: testthat,
     microbenchmark,
-    parallelDist
+    parallelDist,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 RoxygenNote: 7.3.2
+Encoding: UTF-8
