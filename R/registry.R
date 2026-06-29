@@ -41,7 +41,39 @@ fdistregistry$set_entry(method = "supremum",
                         fun    = .supremum,
                         description = "supremum distance")
 
-fdistregistry$set_entry(method = "mahalanobis",  
+fdistregistry$set_entry(method = "squared_euclidean",
+                        fun    = .squared_euclidean,
+                        description = "squared Euclidean distance")
+
+fdistregistry$set_entry(method = "bray_curtis",
+                        fun    = .braycurtis,
+                        description = "Bray-Curtis distance")
+
+fdistregistry$set_entry(method = "hellinger",
+                        fun    = .hellinger,
+                        description = "Hellinger distance")
+
+fdistregistry$set_entry(method = "chi_squared",
+                        fun    = .chisquared,
+                        description = "chi-squared distance")
+
+fdistregistry$set_entry(method = "jensen_shannon",
+                        fun    = .jensenshannon,
+                        description = "Jensen-Shannon distance")
+
+fdistregistry$set_entry(method = "haversine",
+                        fun    = .haversine,
+                        description = "Haversine (great-circle) distance")
+
+fdistregistry$set_entry(method = "standardized_euclidean",
+                        fun    = .standardized_euclidean,
+                        description = "standardized Euclidean distance")
+
+fdistregistry$set_entry(method = "spearman",
+                        fun    = .spearman,
+                        description = "Spearman correlation distance")
+
+fdistregistry$set_entry(method = "mahalanobis",
                         fun    = .mahalanobis,
                         description = "Mahalanobis distance")
 

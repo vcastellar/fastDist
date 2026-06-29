@@ -16,7 +16,10 @@ observations in rows. If `NULL`, `A` is used (except for
 
 \item{method}{Character scalar with the distance method to use. Supported
 values are `"euclidean"`, `"manhattan"`, `"minkowski"`, `"correlation"`,
-`"cosine"`, `"canberra"`, `"supremum"`, and `"mahalanobis"`.}
+`"cosine"`, `"canberra"`, `"supremum"`, `"squared_euclidean"`,
+`"bray_curtis"`, `"hellinger"`, `"chi_squared"`, `"jensen_shannon"`,
+`"haversine"`, `"standardized_euclidean"`, `"spearman"`, and
+`"mahalanobis"`.}
 
 \item{p}{Numeric scalar used only when `method = "minkowski"`. It is the
 exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
@@ -75,6 +78,59 @@ Available `method` values are:
   \item{`"supremum"`}{
   Supremum (Chebyshev, \eqn{L_\infty}) distance.
   \deqn{d(x_i, y_j) = \max_{c=1,\ldots,k}|x_{ic}-y_{jc}|.}
+  }
+
+  \item{`"squared_euclidean"`}{
+  Squared Euclidean distance (Euclidean without the final square root),
+  useful for clustering algorithms such as k-means.
+  \deqn{d(x_i, y_j) = \sum_{c=1}^{k} (x_{ic} - y_{jc})^2.}
+  }
+
+  \item{`"bray_curtis"`}{
+  Bray-Curtis dissimilarity, common for abundance/compositional data.
+  \deqn{d(x_i, y_j) = \frac{\sum_{c=1}^{k}|x_{ic}-y_{jc}|}
+  {\sum_{c=1}^{k}|x_{ic}+y_{jc}|},}
+  where a zero denominator yields `0`.
+  }
+
+  \item{`"hellinger"`}{
+  Hellinger distance between non-negative vectors (e.g. distributions).
+  \deqn{d(x_i, y_j) = \frac{1}{\sqrt{2}}
+  \sqrt{\sum_{c=1}^{k}(\sqrt{x_{ic}}-\sqrt{y_{jc}})^2}.}
+  }
+
+  \item{`"chi_squared"`}{
+  Symmetric chi-squared distance for histograms / non-negative data.
+  \deqn{d(x_i, y_j) = \frac{1}{2}\sum_{c=1}^{k}
+  \frac{(x_{ic}-y_{jc})^2}{x_{ic}+y_{jc}},}
+  where terms with zero denominator contribute `0`.
+  }
+
+  \item{`"jensen_shannon"`}{
+  Jensen-Shannon distance (square root of the Jensen-Shannon divergence,
+  natural logarithm). Each row is normalized to sum to one beforehand. With
+  \eqn{m = (x_i + y_j)/2},
+  \deqn{d(x_i, y_j) = \sqrt{\tfrac{1}{2}\!\sum_c x_{ic}\log\frac{x_{ic}}{m_c}
+  + \tfrac{1}{2}\!\sum_c y_{jc}\log\frac{y_{jc}}{m_c}}.}
+  }
+
+  \item{`"haversine"`}{
+  Great-circle distance in kilometres between points given as
+  `(latitude, longitude)` in degrees (requires exactly two columns; Earth
+  radius 6371 km).
+  }
+
+  \item{`"standardized_euclidean"`}{
+  Euclidean distance with each feature scaled by its sample variance
+  \eqn{s_c^2} estimated from `A`.
+  \deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k}\frac{(x_{ic}-y_{jc})^2}{s_c^2}},}
+  where features with zero variance are dropped.
+  }
+
+  \item{`"spearman"`}{
+  Spearman correlation distance, i.e. one minus Spearman's rank correlation
+  computed between the within-row average ranks of `x_i` and `y_j`.
+  \deqn{d(x_i, y_j) = 1 - \rho_s(x_i, y_j).}
   }
 
   \item{`"mahalanobis"`}{
