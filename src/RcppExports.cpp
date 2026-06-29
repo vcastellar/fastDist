@@ -96,6 +96,54 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sqeuclidean
+NumericMatrix sqeuclidean(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_sqeuclidean(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(sqeuclidean(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hamming
+NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_hamming(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(hamming(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// jaccard
+NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_jaccard(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(jaccard(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dice
+NumericMatrix dice(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_dice(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(dice(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mahalanobis
 NumericMatrix mahalanobis(NumericMatrix Ar);
 RcppExport SEXP _fastDist_mahalanobis(SEXP ArSEXP) {
@@ -116,6 +164,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_cosine", (DL_FUNC) &_fastDist_cosine, 2},
     {"_fastDist_canberra", (DL_FUNC) &_fastDist_canberra, 2},
     {"_fastDist_supremum", (DL_FUNC) &_fastDist_supremum, 2},
+    {"_fastDist_sqeuclidean", (DL_FUNC) &_fastDist_sqeuclidean, 2},
+    {"_fastDist_hamming", (DL_FUNC) &_fastDist_hamming, 2},
+    {"_fastDist_jaccard", (DL_FUNC) &_fastDist_jaccard, 2},
+    {"_fastDist_dice", (DL_FUNC) &_fastDist_dice, 2},
     {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 1},
     {NULL, NULL, 0}
 };

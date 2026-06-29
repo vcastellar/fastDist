@@ -420,6 +420,209 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 
+// squared euclidean distance
+// [[Rcpp::export(.sqeuclidean)]]
+NumericMatrix sqeuclidean(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  arma::colvec An = arma::sum(arma::square(A), 1);
+  arma::colvec Bn = arma::sum(arma::square(B), 1);
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      const double ai_norm = An[i];
+      for (int j = i; j < m; j++) {
+        const double* a = Ap + i;
+        const double* b = Bp + j;
+        double dot = 0.0;
+        for (int col = 0; col < k; col++) {
+          dot += (*a) * (*b);
+          a += m;
+          b += n;
+        }
+        double sqDist = ai_norm + Bn[j] - 2.0 * dot;
+        if (sqDist < 0.0) sqDist = 0.0;
+        res(i, j) = sqDist;
+        if (i != j) res(j, i) = sqDist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      const double ai_norm = An[i];
+      for (int j = 0; j < n; j++) {
+        const double* a = Ap + i;
+        const double* b = Bp + j;
+        double dot = 0.0;
+        for (int col = 0; col < k; col++) {
+          dot += (*a) * (*b);
+          a += m;
+          b += n;
+        }
+        double sqDist = ai_norm + Bn[j] - 2.0 * dot;
+        if (sqDist < 0.0) sqDist = 0.0;
+        res(i, j) = sqDist;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
+// hamming distance
+// [[Rcpp::export(.hamming)]]
+NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          if (Ap[col * m + i] != Bp[col * n + j]) dist += 1.0;
+        }
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double dist = 0.0;
+        for (int col = 0; col < k; col++) {
+          if (Ap[col * m + i] != Bp[col * n + j]) dist += 1.0;
+        }
+        res(i, j) = dist;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
+// jaccard distance (binary input)
+// [[Rcpp::export(.jaccard)]]
+NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double a = 0.0, bc = 0.0;
+        for (int col = 0; col < k; col++) {
+          const bool x = Ap[col * m + i] != 0.0;
+          const bool y = Bp[col * n + j] != 0.0;
+          if (x && y) a += 1.0;
+          else if (x != y) bc += 1.0;
+        }
+        const double denom = a + bc;
+        const double dist = denom > 0.0 ? bc / denom : 0.0;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double a = 0.0, bc = 0.0;
+        for (int col = 0; col < k; col++) {
+          const bool x = Ap[col * m + i] != 0.0;
+          const bool y = Bp[col * n + j] != 0.0;
+          if (x && y) a += 1.0;
+          else if (x != y) bc += 1.0;
+        }
+        const double denom = a + bc;
+        res(i, j) = denom > 0.0 ? bc / denom : 0.0;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
+// dice distance (binary input)
+// [[Rcpp::export(.dice)]]
+NumericMatrix dice(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double a = 0.0, bc = 0.0;
+        for (int col = 0; col < k; col++) {
+          const bool x = Ap[col * m + i] != 0.0;
+          const bool y = Bp[col * n + j] != 0.0;
+          if (x && y) a += 1.0;
+          else if (x != y) bc += 1.0;
+        }
+        const double denom = 2.0 * a + bc;
+        const double dist = denom > 0.0 ? bc / denom : 0.0;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double a = 0.0, bc = 0.0;
+        for (int col = 0; col < k; col++) {
+          const bool x = Ap[col * m + i] != 0.0;
+          const bool y = Bp[col * n + j] != 0.0;
+          if (x && y) a += 1.0;
+          else if (x != y) bc += 1.0;
+        }
+        const double denom = 2.0 * a + bc;
+        res(i, j) = denom > 0.0 ? bc / denom : 0.0;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
 // mahalanobis distance
 // [[Rcpp::export(.mahalanobis)]]
 NumericMatrix mahalanobis(NumericMatrix Ar) {

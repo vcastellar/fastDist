@@ -29,6 +29,22 @@
     .Call(`_fastDist_supremum`, Ar, Br)
 }
 
+.sqeuclidean <- function(Ar, Br) {
+    .Call(`_fastDist_sqeuclidean`, Ar, Br)
+}
+
+.hamming <- function(Ar, Br) {
+    .Call(`_fastDist_hamming`, Ar, Br)
+}
+
+.jaccard <- function(Ar, Br) {
+    .Call(`_fastDist_jaccard`, Ar, Br)
+}
+
+.dice <- function(Ar, Br) {
+    .Call(`_fastDist_dice`, Ar, Br)
+}
+
 .mahalanobis <- function(Ar) {
     .Call(`_fastDist_mahalanobis`, Ar)
 }

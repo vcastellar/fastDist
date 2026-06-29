@@ -41,7 +41,23 @@ fdistregistry$set_entry(method = "supremum",
                         fun    = .supremum,
                         description = "supremum distance")
 
-fdistregistry$set_entry(method = "mahalanobis",  
+fdistregistry$set_entry(method = "sqeuclidean",
+                        fun    = .sqeuclidean,
+                        description = "squared Euclidean distance")
+
+fdistregistry$set_entry(method = "hamming",
+                        fun    = .hamming,
+                        description = "Hamming distance")
+
+fdistregistry$set_entry(method = "jaccard",
+                        fun    = .jaccard,
+                        description = "Jaccard distance (binary)")
+
+fdistregistry$set_entry(method = "dice",
+                        fun    = .dice,
+                        description = "Dice distance (binary)")
+
+fdistregistry$set_entry(method = "mahalanobis",
                         fun    = .mahalanobis,
                         description = "Mahalanobis distance")
 

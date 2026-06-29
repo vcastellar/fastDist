@@ -141,6 +141,89 @@ NULL
 #' @noRd
 NULL
 
+#' Internal squared Euclidean distance backend (.sqeuclidean)
+#'
+#' @name .sqeuclidean
+#' @description
+#' Computes the squared Euclidean distance between rows of `Ar` and `Br`.
+#' @details
+#' For two observations \eqn{x, y \in \mathbb{R}^k}, the squared Euclidean
+#' distance is defined as:
+#' \deqn{d(x, y) = \sum_{i=1}^{k}(x_i - y_i)^2}
+#' It is the Euclidean distance without the final square root, which is cheaper
+#' to compute and is often sufficient (e.g. for k-means or nearest-neighbour
+#' searches). This function is an internal backend implemented in C++ and
+#' exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .sqeuclidean(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Hamming distance backend (.hamming)
+#'
+#' @name .hamming
+#' @description
+#' Computes the Hamming distance between rows of `Ar` and `Br`.
+#' @details
+#' For two observations \eqn{x, y \in \mathbb{R}^k}, the Hamming distance counts
+#' the number of coordinates in which they differ:
+#' \deqn{d(x, y) = \sum_{i=1}^{k}\mathbf{1}(x_i \neq y_i)}
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .hamming(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Jaccard distance backend (.jaccard)
+#'
+#' @name .jaccard
+#' @description
+#' Computes the Jaccard distance between rows of `Ar` and `Br`, treating the
+#' input as binary (0/1).
+#' @details
+#' Let \eqn{a} be the number of coordinates where both rows equal 1 and
+#' \eqn{b + c} the number where exactly one row equals 1. The Jaccard distance
+#' is:
+#' \deqn{d(x, y) = \frac{b + c}{a + b + c}}
+#' Pairs with an empty union (\eqn{a + b + c = 0}) are assigned a distance of 0.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .jaccard(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Dice distance backend (.dice)
+#'
+#' @name .dice
+#' @description
+#' Computes the Dice distance between rows of `Ar` and `Br`, treating the input
+#' as binary (0/1).
+#' @details
+#' Using the same counts as the Jaccard distance, the Dice distance is:
+#' \deqn{d(x, y) = \frac{b + c}{2a + b + c}}
+#' Pairs with \eqn{2a + b + c = 0} are assigned a distance of 0.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .dice(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
 #' Internal Mahalanobis distance backend (.mahalanobis)
 #'
 #' @name .mahalanobis
