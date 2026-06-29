@@ -24,7 +24,7 @@ definition).}
 }
 \value{
 A numeric matrix where entry `[i, j]` is the distance between row
-`i` of `A` and row `j` of `B` (or row `j` of `A` when `B = NULL`).
+  `i` of `A` and row `j` of `B` (or row `j` of `A` when `B = NULL`).
 }
 \description{
 Computes pairwise distances between rows of `A` and `B` using distance
