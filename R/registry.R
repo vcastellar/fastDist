@@ -13,37 +13,37 @@ fdistregistry$set_field("description",
 
 fdistregistry$set_entry(method = "euclidean",  
                         fun    = .euclidean,
-                        description = "distancia euclidea")
+                        description = "Euclidean distance")
 
 fdistregistry$set_entry(method = "manhattan",  
                         fun    = .manhattan,
-                        description = "distancia de manhattan")
+                        description = "Manhattan distance")
 
 fdistregistry$set_entry(method = "minkowski",  
                         fun    = .minkowski,
                         p      = 2,
-                        description = "distancia de Minkowski")
+                        description = "Minkowski distance")
 
 fdistregistry$set_entry(method = "correlation",  
                         fun    = .correlation,
-                        description = "distancia de correlacion")
+                        description = "correlation distance")
 
 fdistregistry$set_entry(method = "cosine",  
                         fun    = .cosine,
-                        description = "distancia del coseno")
+                        description = "cosine distance")
 
 fdistregistry$set_entry(method = "canberra",  
                         fun    = .canberra,
-                        description = "distancia de canberra")
+                        description = "Canberra distance")
 
 
 fdistregistry$set_entry(method = "supremum",  
                         fun    = .supremum,
-                        description = "distancia del supremo")
+                        description = "supremum distance")
 
 fdistregistry$set_entry(method = "mahalanobis",  
                         fun    = .mahalanobis,
-                        description = "distancia de Mahalanobis")
+                        description = "Mahalanobis distance")
 
 
 

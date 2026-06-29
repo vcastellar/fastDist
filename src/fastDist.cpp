@@ -17,7 +17,7 @@ inline bool same_input(const NumericMatrix& Ar, const NumericMatrix& Br) {
 
 
 
-// distancia euclidea
+// euclidean distance
 // [[Rcpp::export(.euclidean)]]
 NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(),
@@ -79,7 +79,7 @@ NumericMatrix euclidean(NumericMatrix Ar, NumericMatrix Br) {
 
 
 
-// distancia de manhattan
+// manhattan distance
 // [[Rcpp::export(.manhattan)]]
 NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(),
@@ -125,7 +125,7 @@ NumericMatrix manhattan(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 
-// distancia de minkowsky
+// minkowski distance
 // [[Rcpp::export(.minkowski)]]
 NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
   int m = Ar.nrow(), 
@@ -185,7 +185,7 @@ NumericMatrix minkowski(NumericMatrix Ar, NumericMatrix Br, double p) {
 }
 
 
-// distancia de correlacion
+// correlation distance
 // [[Rcpp::export(.correlation)]]
 NumericMatrix correlation(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(),
@@ -267,7 +267,7 @@ NumericMatrix correlation(NumericMatrix Ar, NumericMatrix Br) {
   return wrap(res);
 }
 
-// distancia del coseno
+// cosine distance
 // [[Rcpp::export(.cosine)]]
 NumericMatrix cosine(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(),
@@ -324,7 +324,7 @@ NumericMatrix cosine(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 
-// distancia de canberra
+// canberra distance
 // [[Rcpp::export(.canberra)]]
 NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(),
@@ -375,7 +375,7 @@ NumericMatrix canberra(NumericMatrix Ar, NumericMatrix Br) {
   return wrap(res);
 }
 
-// distancia de supremum
+// supremum distance
 // [[Rcpp::export(.supremum)]]
 NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
   int m = Ar.nrow(),
@@ -420,7 +420,7 @@ NumericMatrix supremum(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 
-// distancia mahalanobis
+// mahalanobis distance
 // [[Rcpp::export(.mahalanobis)]]
 NumericMatrix mahalanobis(NumericMatrix Ar) {
   int m = Ar.nrow(),

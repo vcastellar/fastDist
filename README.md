@@ -1,8 +1,8 @@
 # fastDist
-Cálculo rápido de distancias entre filas de dos matrices
+Fast computation of distances between the rows of two matrices
 
 # benchmark
-Tiempo (segundos) de cálculo de distancias entre filas de una matriz de dimensiones 10000x100. Comparación de diferentes métodos entre el paquete fastDist y el proxy. Para el test, se usa el paquete microbenchmark. Ejecutado en un procesador pentium i5 10400
+Computation time (seconds) of distances between the rows of a 10000x100 matrix. Comparison of different methods between the fastDist package and proxy. The test uses the microbenchmark package. Run on an Intel i5 10400 processor
 
 | expr          | method     | mean       | b_rows | a_rows | n_features |
 |---------------|------------|------------|--------|--------|------------|
@@ -33,27 +33,19 @@ Tiempo (segundos) de cálculo de distancias entre filas de una matriz de dimensi
 
 ## benchmark fastDist vs parallelDist
 
-Se agregó un benchmark reproducible para comparar `fastDist` contra `parallelDist`
-en el cálculo de distancias entre las filas de `A` y `B` para los métodos:
+A reproducible benchmark was added to compare `fastDist` against `parallelDist`
+when computing distances between the rows of `A` and `B` for the methods:
 
 - Euclidean
 - Manhattan
 - Minkowski
 
-El script está en `inst/benchmarks/parallelDist_microbenchmark.R` y ejecuta el caso:
+The benchmark runs the case:
 
 - `A`: `1000 x 1000`
-- `B`: `1000`, `5000`, `10000` y `20000` filas
+- `B`: `1000`, `5000`, `10000` and `20000` rows
 
-Uso sugerido:
-
-```r
-install.packages(c("microbenchmark", "parallelDist"))
-devtools::load_all(".")
-source("inst/benchmarks/parallelDist_microbenchmark.R")
-```
-
-Internamente, la comparación con `parallelDist` se resuelve por bloques sobre las filas
-de `B`, porque `parallelDist::parDist()` calcula matrices de distancia cuadradas. De esta
-forma se puede extraer la submatriz cruzada `A x B` y estudiar cómo escala el tiempo a
-medida que crece `B`.
+Internally, the comparison with `parallelDist` is solved in blocks over the rows
+of `B`, because `parallelDist::parDist()` computes square distance matrices. This
+way the cross submatrix `A x B` can be extracted in order to study how the time
+scales as `B` grows.

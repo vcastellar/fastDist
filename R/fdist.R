@@ -74,7 +74,7 @@
 #' @export
 fdist <- function(A, B = NULL, method, p = NULL) {
   if (!method %in% fdistregistry$get_entry_names()) {
-    stop(paste(method, "not found in fdistregestry"))
+    stop(paste(method, "not found in fdistregistry"))
   }
   A <- as.matrix(A)
   if (method == "mahalanobis") {

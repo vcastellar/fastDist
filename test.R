@@ -103,7 +103,7 @@ res <- microbenchmark(
 autoplot(res)
 
 
-resultados = data.frame(method = character(),
+results = data.frame(method = character(),
                         package = character(),
                         nrow = integer(),
                         ncol = integer(),
@@ -113,35 +113,35 @@ for (row in rows) {
   B <- matrix(rnorm(row * cols), row, cols)
   
   res <- microbenchmark(fdist(B, B, method = "euclidean"), times = 10, unit = "seconds")
-  fila <- data.frame(method = "Euclidean", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
-  resultados <- rbind(resultados, fila)
+  row_df <- data.frame(method = "Euclidean", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
+  results <- rbind(results, row_df)
   
   res <- microbenchmark(proxy::dist(B, B, method = "Euclidean") ,times = 10, unit = "seconds")
-  fila <- data.frame(method = "Euclidean", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
-  resultados <- rbind(resultados, fila)
+  row_df <- data.frame(method = "Euclidean", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
+  results <- rbind(results, row_df)
   
   res <- microbenchmark(fdist(B, B, method = "manhattan"), times = 10, unit = "seconds")
-  fila <- data.frame(method = "Manhattan", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
-  resultados <- rbind(resultados, fila)
+  row_df <- data.frame(method = "Manhattan", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
+  results <- rbind(results, row_df)
   
   res <- microbenchmark(proxy::dist(B, B, method = "Manhattan") ,times = 10, unit = "seconds")
-  fila <- data.frame(method = "Manhattan", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
-  resultados <- rbind(resultados, fila)
+  row_df <- data.frame(method = "Manhattan", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
+  results <- rbind(results, row_df)
   
   res <- microbenchmark(fdist(B, B, method = "minkowski", p = 5), times = 10, unit = "seconds")
-  fila <- data.frame(method = "Minkowski", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
-  resultados <- rbind(resultados, fila)
+  row_df <- data.frame(method = "Minkowski", package = "fastDist", nrow = row, ncol = 100, t = summary(res)$mean)
+  results <- rbind(results, row_df)
   
   res <- microbenchmark(proxy::dist(B, B, method = "Minkowski", p = 5) ,times = 10, unit = "seconds")
-  fila <- data.frame(method = "Minkowski", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
-  resultados <- rbind(resultados, fila)
+  row_df <- data.frame(method = "Minkowski", package = "proxy", nrow = row, ncol = 100, t = summary(res)$mean)
+  results <- rbind(results, row_df)
   
-  print(resultados)
+  print(results)
 }
 
 library(ggplot2)
 png(filename = "test.png", width = 1200, height = 500)
-ggplot(resultados, aes(nrow, t, color = package)) + 
+ggplot(results, aes(nrow, t, color = package)) + 
   geom_point() + geom_line() +
   facet_wrap(. ~ method, scales = "free")
 dev.off()
