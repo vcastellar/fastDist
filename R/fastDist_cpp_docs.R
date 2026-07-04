@@ -321,3 +321,64 @@ NULL
 #' @keywords internal
 #' @noRd
 NULL
+
+#' Internal Hamming distance backend (.hamming)
+#'
+#' @name .hamming
+#' @description
+#' Computes the Hamming distance between rows of `Ar` and `Br`, i.e. the
+#' number of positions in which the two rows differ.
+#' @details
+#' For observations \eqn{x, y \in \mathbb{R}^k}:
+#' \deqn{d(x, y) = \sum_{i=1}^{k}\mathbf{1}(x_i \neq y_i)}
+#' Intended for binary or integer-coded categorical data.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .hamming(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Jaccard distance backend (.jaccard)
+#'
+#' @name .jaccard
+#' @description
+#' Computes the Jaccard distance between rows of `Ar` and `Br`, treating
+#' non-zero entries as set membership.
+#' @details
+#' With the intersection and union computed over the non-zero patterns of
+#' \eqn{x} and \eqn{y}:
+#' \deqn{d(x, y) = 1 - \frac{|x \cap y|}{|x \cup y|}}
+#' An empty union yields a distance of `0`.
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .jaccard(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Internal Gower distance backend (.gower)
+#'
+#' @name .gower
+#' @description
+#' Computes the Gower distance between rows of `Ar` and `Br`, scaling each
+#' feature by its range estimated from `Ar`.
+#' @details
+#' Let \eqn{R_c} be the range (max - min) of column `c` of `Ar` (columns with
+#' zero range use \eqn{R_c = 1}). Then:
+#' \deqn{d(x, y) = \frac{1}{k}\sum_{c=1}^{k}\frac{|x_c - y_c|}{R_c}}
+#' This function is an internal backend implemented in C++ and exposed via Rcpp.
+#'
+#' @inheritParams .euclidean
+#'
+#' @return Numeric `m x n` matrix with pairwise distances.
+#' @usage .gower(Ar, Br)
+#' @keywords internal
+#' @noRd
+NULL

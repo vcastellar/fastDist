@@ -203,6 +203,42 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// hamming
+NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_hamming(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(hamming(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// jaccard
+NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_jaccard(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(jaccard(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gower
+NumericMatrix gower(NumericMatrix Ar, NumericMatrix Br);
+RcppExport SEXP _fastDist_gower(SEXP ArSEXP, SEXP BrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
+    rcpp_result_gen = Rcpp::wrap(gower(Ar, Br));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_euclidean", (DL_FUNC) &_fastDist_euclidean, 2},
@@ -221,6 +257,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_standardized_euclidean", (DL_FUNC) &_fastDist_standardized_euclidean, 2},
     {"_fastDist_spearman", (DL_FUNC) &_fastDist_spearman, 2},
     {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 1},
+    {"_fastDist_hamming", (DL_FUNC) &_fastDist_hamming, 2},
+    {"_fastDist_jaccard", (DL_FUNC) &_fastDist_jaccard, 2},
+    {"_fastDist_gower", (DL_FUNC) &_fastDist_gower, 2},
     {NULL, NULL, 0}
 };
 

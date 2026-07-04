@@ -12,11 +12,12 @@
 #'   values are `"euclidean"`, `"manhattan"`, `"minkowski"`, `"correlation"`,
 #'   `"cosine"`, `"canberra"`, `"supremum"`, `"squared_euclidean"`,
 #'   `"bray_curtis"`, `"hellinger"`, `"chi_squared"`, `"jensen_shannon"`,
-#'   `"haversine"`, `"standardized_euclidean"`, `"spearman"`, and
-#'   `"mahalanobis"`.
+#'   `"haversine"`, `"standardized_euclidean"`, `"spearman"`, `"mahalanobis"`,
+#'   `"hamming"`, `"jaccard"`, and `"gower"`.
 #' @param p Numeric scalar used only when `method = "minkowski"`. It is the
 #'   exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
-#'   definition).
+#'   definition). If `NULL` (the default), the value stored in
+#'   [fdistregistry] is used (`p = 2`).
 #'
 #' @details
 #' Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row `i` from `A` and
@@ -123,31 +124,86 @@
 #'   from `A` (\eqn{B} is ignored).
 #'   \deqn{d(x_i, x_j) = \sqrt{(x_i - x_j)^\top S^{-1}(x_i - x_j)}.}
 #'   }
+#'
+#'   \item{`"hamming"`}{
+#'   Hamming distance, counts the number of positions where values differ.
+#'   Useful for categorical/binary data.
+#'   \deqn{d(x_i, y_j) = \sum_{c=1}^{k} \mathbb{1}(x_{ic} \neq y_{jc}).}
+#'   }
+#'
+#'   \item{`"jaccard"`}{
+#'   Jaccard distance for binary/set-based data (treating non-zero values as 1).
+#'   \deqn{d(x_i, y_j) = 1 - \frac{|x_i \cap y_j|}{|x_i \cup y_j|},}
+#'   where intersection and union are computed treating non-zero elements as 1.
+#'   }
+#'
+#'   \item{`"gower"`}{
+#'   Gower distance for mixed data types. Scales each feature by its range and
+#'   averages the absolute differences.
+#'   \deqn{d(x_i, y_j) = \frac{1}{k}\sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{R_c},}
+#'   where \eqn{R_c} is the range (max - min) of feature \eqn{c} in `A`.
+#'   }
 #' }
 #'
 #' @return A numeric matrix where entry `[i, j]` is the distance between row
 #'   `i` of `A` and row `j` of `B` (or row `j` of `A` when `B = NULL`).
+#'
+#' @examples
+#' set.seed(1)
+#' A <- matrix(rnorm(5 * 3), nrow = 5, ncol = 3)
+#' B <- matrix(rnorm(4 * 3), nrow = 4, ncol = 3)
+#'
+#' # cross distances between the rows of A and the rows of B
+#' fdist(A, B, method = "euclidean")
+#'
+#' # distances within the rows of A (symmetric, zero diagonal)
+#' fdist(A, method = "manhattan")
+#'
+#' # Minkowski distance of order p = 3
+#' fdist(A, B, method = "minkowski", p = 3)
+#'
+#' # binary data: Hamming and Jaccard distances
+#' X <- matrix(rbinom(5 * 8, 1, 0.5), nrow = 5, ncol = 8)
+#' fdist(X, method = "hamming")
+#' fdist(X, method = "jaccard")
+#'
+#' # mixed-scale numeric data: Gower distance
+#' fdist(A, method = "gower")
+#'
+#' # geographic coordinates (latitude, longitude) in degrees
+#' cities <- rbind(c(40.4168, -3.7038),  # Madrid
+#'                 c(41.3851,  2.1734),  # Barcelona
+#'                 c(48.8566,  2.3522))  # Paris
+#' fdist(cities, method = "haversine")
+#'
+#' # all available methods
+#' fdistregistry$get_entry_names()
+#'
+#' @seealso [fdistregistry] for the registry of available distance backends.
 #' @export
 fdist <- function(A, B = NULL, method, p = NULL) {
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregistry"))
   }
   A <- as.matrix(A)
+  entry <- fdistregistry$get_entry(method)
   if (method == "mahalanobis") {
-    result <- fdistregistry$get_entry(method)$fun(A)
+    result <- entry$fun(A)
   } else {
     if (is.null(B)) {
       B <- A
     } else {
       B <- as.matrix(B)
     }
-    if (is.na(fdistregistry$get_entry(method)$p)) {
-      result <- fdistregistry$get_entry(method)$fun(A, B)
+    if (is.na(entry$p)) {
+      result <- entry$fun(A, B)
     } else {
-      result <- fdistregistry$get_entry(method)$fun(A, B, p)
+      if (is.null(p)) {
+        p <- entry$p
+      }
+      result <- entry$fun(A, B, p)
     }
   }
 
-  
-  return(result)
+  result
 }

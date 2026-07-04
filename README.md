@@ -1,8 +1,97 @@
 # fastDist
-Fast computation of distances between the rows of two matrices
 
-# benchmark
-Computation time (seconds) of distances between the rows of a 10000x100 matrix. Comparison of different methods between the fastDist package and parallelDist. The test uses the microbenchmark package. Run on an Intel i5 10400 processor
+Fast computation of pairwise distances between the rows of two matrices.
+
+`fastDist` provides a single entry point, `fdist()`, that dispatches to C++
+backends built on [RcppArmadillo](https://cran.r-project.org/package=RcppArmadillo)
+and parallelised with OpenMP where available. Unlike `stats::dist()` and
+packages built around it, `fdist()` computes **cross distances** directly:
+given `A` (`m x k`) and `B` (`n x k`), it returns the `m x n` matrix of
+distances between every row of `A` and every row of `B`, with no stacking or
+slicing tricks. When `B` is omitted, only the upper triangle of the symmetric
+result is computed.
+
+## Installation
+
+```r
+# development version from GitHub
+# install.packages("remotes")
+remotes::install_github("vcastellar/fastDist")
+```
+
+## Usage
+
+```r
+library(fastDist)
+
+set.seed(1)
+A <- matrix(rnorm(1000 * 50), 1000, 50)
+B <- matrix(rnorm( 500 * 50),  500, 50)
+
+D <- fdist(A, B, method = "euclidean")   # 1000 x 500 cross distances
+S <- fdist(A, method = "cosine")         # 1000 x 1000 symmetric matrix
+
+# list all available methods
+fdistregistry$get_entry_names()
+```
+
+## Supported distance methods
+
+| method                    | intended data                       |
+|---------------------------|-------------------------------------|
+| `euclidean`               | general numeric                     |
+| `manhattan`               | general numeric                     |
+| `minkowski` (order `p`)   | general numeric                     |
+| `supremum` (Chebyshev)    | general numeric                     |
+| `squared_euclidean`       | general numeric (k-means, etc.)     |
+| `standardized_euclidean`  | numeric, mixed units                |
+| `correlation`             | profiles / expression data          |
+| `cosine`                  | embeddings, text vectors            |
+| `spearman`                | rank-based profiles                 |
+| `canberra`                | non-negative, sparse counts         |
+| `bray_curtis`             | abundances / compositional          |
+| `hellinger`               | distributions                       |
+| `chi_squared`             | histograms                          |
+| `jensen_shannon`          | probability distributions           |
+| `hamming`                 | binary / categorical codes          |
+| `jaccard`                 | binary / sets                       |
+| `gower`                   | mixed-scale numeric                 |
+| `haversine`               | geographic (lat, lon) in degrees    |
+| `mahalanobis`             | numeric, covariance-aware           |
+
+See `?fdist` for the exact definition of each metric, and the vignette
+(`vignette("fastDist")`) for a guided tour.
+
+## Benchmarks
+
+Two reproducible benchmark scripts live in the `benchmark/` directory of the
+repository (they are not shipped with the installed package):
+
+* `benchmark/benchmark_comparison.R` — compares `fdist()` against
+  [`parallelDist`](https://cran.r-project.org/package=parallelDist),
+  [`proxy`](https://cran.r-project.org/package=proxy) and
+  [`rdist`](https://cran.r-project.org/package=rdist) for every metric the
+  packages share (Euclidean, Manhattan, Minkowski, Canberra, supremum,
+  Hamming, Jaccard). Results are validated against `fastDist` before timing,
+  and a speed-up summary is printed at the end:
+
+  ```r
+  source("benchmark/benchmark_comparison.R")
+  results <- run_benchmark(a_rows = 1000,
+                           b_rows = c(1000, 5000, 10000),
+                           n_features = 1000)
+  speedup_table(results)
+  plot_benchmark(results)   # requires ggplot2
+  ```
+
+* `benchmark/benchmark_parallelDist.R` — the original head-to-head
+  comparison with `parallelDist` only.
+
+As a reference, mean time in seconds to compute the cross distances between
+`A` (`1000 x 1000`) and `B` (growing number of rows), measured with
+`microbenchmark` on an Intel i5 10400. `parallelDist` computes square
+matrices only, so its timings include the `rbind()` + slicing step needed to
+obtain cross distances:
 
 | expr          | method     | mean       | b_rows | a_rows | n_features |
 |---------------|------------|------------|--------|--------|------------|
@@ -31,22 +120,9 @@ Computation time (seconds) of distances between the rows of a 10000x100 matrix. 
 | fastDist      | minkowski  | 139.660941 | 20000  | 1000   | 1000       |
 | parallelDist  | minkowski  | 185.130829 | 20000  | 1000   | 1000       |
 
-## benchmark fastDist vs parallelDist
+Timings depend on hardware, BLAS library and number of OpenMP threads; run
+the scripts on your machine for meaningful numbers.
 
-A reproducible benchmark script (`benchmark/benchmark_parallelDist.R`) compares
-`fastDist` against `parallelDist` when computing distances between the rows of
-`A` and `B` for the methods:
+## License
 
-- Euclidean
-- Manhattan
-- Minkowski
-
-The benchmark runs the case:
-
-- `A`: `1000 x 1000`
-- `B`: `1000`, `5000`, `10000` and `20000` rows
-
-Internally, the comparison with `parallelDist` is solved in blocks over the rows
-of `B`, because `parallelDist::parDist()` computes square distance matrices. This
-way the cross submatrix `A x B` can be extracted in order to study how the time
-scales as `B` grows.
+GPL-3

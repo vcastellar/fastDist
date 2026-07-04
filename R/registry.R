@@ -1,43 +1,72 @@
-library(registry)
-fdistregistry <- registry()
+#' Registry of Distance Backends
+#'
+#' A registry object (created with the \pkg{registry} package) holding the
+#' distance backends
+#' available to [fdist()]. Each entry stores the `method` name (the lookup
+#' key), the C++ backend function `fun`, an optional numeric parameter `p`
+#' (only used by the Minkowski distance, where it defaults to `2`) and a
+#' short human-readable `description`.
+#'
+#' The registry is mainly useful to discover which methods are available:
+#'
+#' - `fdistregistry$get_entry_names()` returns the method names accepted by
+#'   the `method` argument of [fdist()].
+#' - `fdistregistry$get_entry("euclidean")` returns the full entry of a
+#'   given method.
+#'
+#' @format A `registry` object with fields `method`, `fun`, `p` and
+#'   `description`.
+#'
+#' @examples
+#' # methods accepted by fdist()
+#' fdistregistry$get_entry_names()
+#'
+#' # description of every registered method
+#' vapply(fdistregistry$get_entry_names(),
+#'        function(m) fdistregistry$get_entry(m)$description,
+#'        character(1))
+#'
+#' @seealso [fdist()]
+#' @export
+fdistregistry <- registry::registry()
 
-fdistregistry$set_field("method", 
+fdistregistry$set_field("method",
                         type = "character", is_key = TRUE,
-                        index_FUN = match_partial_ignorecase)
-fdistregistry$set_field("fun", 
+                        index_FUN = registry::match_partial_ignorecase)
+fdistregistry$set_field("fun",
                         type = "function", is_key = FALSE)
-fdistregistry$set_field("p", 
+fdistregistry$set_field("p",
                         type = "numeric", is_key = FALSE)
-fdistregistry$set_field("description", 
-                         type = "character", is_key = FALSE)
+fdistregistry$set_field("description",
+                        type = "character", is_key = FALSE)
 
-fdistregistry$set_entry(method = "euclidean",  
+fdistregistry$set_entry(method = "euclidean",
                         fun    = .euclidean,
                         description = "Euclidean distance")
 
-fdistregistry$set_entry(method = "manhattan",  
+fdistregistry$set_entry(method = "manhattan",
                         fun    = .manhattan,
                         description = "Manhattan distance")
 
-fdistregistry$set_entry(method = "minkowski",  
+fdistregistry$set_entry(method = "minkowski",
                         fun    = .minkowski,
                         p      = 2,
                         description = "Minkowski distance")
 
-fdistregistry$set_entry(method = "correlation",  
+fdistregistry$set_entry(method = "correlation",
                         fun    = .correlation,
                         description = "correlation distance")
 
-fdistregistry$set_entry(method = "cosine",  
+fdistregistry$set_entry(method = "cosine",
                         fun    = .cosine,
                         description = "cosine distance")
 
-fdistregistry$set_entry(method = "canberra",  
+fdistregistry$set_entry(method = "canberra",
                         fun    = .canberra,
                         description = "Canberra distance")
 
 
-fdistregistry$set_entry(method = "supremum",  
+fdistregistry$set_entry(method = "supremum",
                         fun    = .supremum,
                         description = "supremum distance")
 
@@ -77,7 +106,14 @@ fdistregistry$set_entry(method = "mahalanobis",
                         fun    = .mahalanobis,
                         description = "Mahalanobis distance")
 
+fdistregistry$set_entry(method = "hamming",
+                        fun    = .hamming,
+                        description = "Hamming distance")
 
+fdistregistry$set_entry(method = "jaccard",
+                        fun    = .jaccard,
+                        description = "Jaccard distance")
 
-
-
+fdistregistry$set_entry(method = "gower",
+                        fun    = .gower,
+                        description = "Gower distance")

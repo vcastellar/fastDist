@@ -11,132 +11,193 @@ fdist(A, B = NULL, method, p = NULL)
 observations in rows.}
 
 \item{B}{A matrix (or object coercible to a matrix) containing target
-observations in rows. If `NULL`, `A` is used (except for
-`method = "mahalanobis"`, which always uses only `A`).}
+observations in rows. If \code{NULL}, \code{A} is used (except for
+\code{method = "mahalanobis"}, which always uses only \code{A}).}
 
 \item{method}{Character scalar with the distance method to use. Supported
-values are `"euclidean"`, `"manhattan"`, `"minkowski"`, `"correlation"`,
-`"cosine"`, `"canberra"`, `"supremum"`, `"squared_euclidean"`,
-`"bray_curtis"`, `"hellinger"`, `"chi_squared"`, `"jensen_shannon"`,
-`"haversine"`, `"standardized_euclidean"`, `"spearman"`, and
-`"mahalanobis"`.}
+values are \code{"euclidean"}, \code{"manhattan"}, \code{"minkowski"},
+\code{"correlation"}, \code{"cosine"}, \code{"canberra"},
+\code{"supremum"}, \code{"squared_euclidean"}, \code{"bray_curtis"},
+\code{"hellinger"}, \code{"chi_squared"}, \code{"jensen_shannon"},
+\code{"haversine"}, \code{"standardized_euclidean"}, \code{"spearman"},
+\code{"mahalanobis"}, \code{"hamming"}, \code{"jaccard"}, and
+\code{"gower"}.}
 
-\item{p}{Numeric scalar used only when `method = "minkowski"`. It is the
-exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
-definition).}
+\item{p}{Numeric scalar used only when \code{method = "minkowski"}. It is
+the exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
+definition). If \code{NULL} (the default), the value stored in
+\code{\link{fdistregistry}} is used (\code{p = 2}).}
 }
 \value{
-A numeric matrix where entry `[i, j]` is the distance between row
-  `i` of `A` and row `j` of `B` (or row `j` of `A` when `B = NULL`).
+A numeric matrix where entry \code{[i, j]} is the distance between row
+\code{i} of \code{A} and row \code{j} of \code{B} (or row \code{j} of
+\code{A} when \code{B = NULL}).
 }
 \description{
-Computes pairwise distances between rows of `A` and `B` using distance
-backends registered in `fdistregistry`.
+Computes pairwise distances between rows of \code{A} and \code{B} using
+distance backends registered in \code{\link{fdistregistry}}.
 }
 \details{
-Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row `i` from `A` and
-\eqn{y_j = (y_{j1}, \ldots, y_{jk})} be row `j` from `B`.
+Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row \code{i} from \code{A} and
+\eqn{y_j = (y_{j1}, \ldots, y_{jk})} be row \code{j} from \code{B}.
 
-Available `method` values are:
+Available \code{method} values are:
 
 \describe{
-  \item{`"euclidean"`}{
+  \item{\code{"euclidean"}}{
   Standard \eqn{L_2} distance.
   \deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k} (x_{ic} - y_{jc})^2}.}
   }
 
-  \item{`"manhattan"`}{
+  \item{\code{"manhattan"}}{
   City-block (\eqn{L_1}) distance.
   \deqn{d(x_i, y_j) = \sum_{c=1}^{k} |x_{ic} - y_{jc}|.}
   }
 
-  \item{`"minkowski"`}{
-  Generalized \eqn{L_p} distance controlled by `p`.
+  \item{\code{"minkowski"}}{
+  Generalized \eqn{L_p} distance controlled by \code{p}.
   \deqn{d(x_i, y_j) = \left(\sum_{c=1}^{k} |x_{ic} - y_{jc}|^p\right)^{1/p}.}
-  Special cases: `p = 1` gives Manhattan and `p = 2` gives Euclidean.
+  Special cases: \code{p = 1} gives Manhattan and \code{p = 2} gives
+  Euclidean.
   }
 
-  \item{`"correlation"`}{
+  \item{\code{"correlation"}}{
   Correlation distance, defined as one minus the Pearson correlation between
   centered row vectors.
   \deqn{d(x_i, y_j) = 1 - \frac{\sum_{c=1}^{k}(x_{ic}-\bar{x}_i)(y_{jc}-\bar{y}_j)}
   {\sqrt{\sum_{c=1}^{k}(x_{ic}-\bar{x}_i)^2}\sqrt{\sum_{c=1}^{k}(y_{jc}-\bar{y}_j)^2}}.}
   }
 
-  \item{`"cosine"`}{
+  \item{\code{"cosine"}}{
   Cosine distance, defined as one minus cosine similarity.
   \deqn{d(x_i, y_j) = 1 - \frac{\sum_{c=1}^{k}x_{ic}y_{jc}}
   {\sqrt{\sum_{c=1}^{k}x_{ic}^2}\sqrt{\sum_{c=1}^{k}y_{jc}^2}}.}
   }
 
-  \item{`"canberra"`}{
+  \item{\code{"canberra"}}{
   Canberra distance (feature-wise normalized absolute differences).
   \deqn{d(x_i, y_j) = \sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{|x_{ic}|+|y_{jc}|},}
-  where terms with zero denominator contribute `0`.
+  where terms with zero denominator contribute \code{0}.
   }
 
-  \item{`"supremum"`}{
+  \item{\code{"supremum"}}{
   Supremum (Chebyshev, \eqn{L_\infty}) distance.
   \deqn{d(x_i, y_j) = \max_{c=1,\ldots,k}|x_{ic}-y_{jc}|.}
   }
 
-  \item{`"squared_euclidean"`}{
+  \item{\code{"squared_euclidean"}}{
   Squared Euclidean distance (Euclidean without the final square root),
   useful for clustering algorithms such as k-means.
   \deqn{d(x_i, y_j) = \sum_{c=1}^{k} (x_{ic} - y_{jc})^2.}
   }
 
-  \item{`"bray_curtis"`}{
+  \item{\code{"bray_curtis"}}{
   Bray-Curtis dissimilarity, common for abundance/compositional data.
   \deqn{d(x_i, y_j) = \frac{\sum_{c=1}^{k}|x_{ic}-y_{jc}|}
   {\sum_{c=1}^{k}|x_{ic}+y_{jc}|},}
-  where a zero denominator yields `0`.
+  where a zero denominator yields \code{0}.
   }
 
-  \item{`"hellinger"`}{
+  \item{\code{"hellinger"}}{
   Hellinger distance between non-negative vectors (e.g. distributions).
   \deqn{d(x_i, y_j) = \frac{1}{\sqrt{2}}
   \sqrt{\sum_{c=1}^{k}(\sqrt{x_{ic}}-\sqrt{y_{jc}})^2}.}
   }
 
-  \item{`"chi_squared"`}{
+  \item{\code{"chi_squared"}}{
   Symmetric chi-squared distance for histograms / non-negative data.
   \deqn{d(x_i, y_j) = \frac{1}{2}\sum_{c=1}^{k}
   \frac{(x_{ic}-y_{jc})^2}{x_{ic}+y_{jc}},}
-  where terms with zero denominator contribute `0`.
+  where terms with zero denominator contribute \code{0}.
   }
 
-  \item{`"jensen_shannon"`}{
+  \item{\code{"jensen_shannon"}}{
   Jensen-Shannon distance (square root of the Jensen-Shannon divergence,
   natural logarithm). Each row is normalized to sum to one beforehand. With
   \eqn{m = (x_i + y_j)/2},
-  \deqn{d(x_i, y_j) = \sqrt{\tfrac{1}{2}\!\sum_c x_{ic}\log\frac{x_{ic}}{m_c}
-  + \tfrac{1}{2}\!\sum_c y_{jc}\log\frac{y_{jc}}{m_c}}.}
+  \deqn{d(x_i, y_j) = \sqrt{\tfrac{1}{2}\sum_c x_{ic}\log\frac{x_{ic}}{m_c}
+  + \tfrac{1}{2}\sum_c y_{jc}\log\frac{y_{jc}}{m_c}}.}
   }
 
-  \item{`"haversine"`}{
+  \item{\code{"haversine"}}{
   Great-circle distance in kilometres between points given as
-  `(latitude, longitude)` in degrees (requires exactly two columns; Earth
-  radius 6371 km).
+  \code{(latitude, longitude)} in degrees (requires exactly two columns;
+  Earth radius 6371 km).
   }
 
-  \item{`"standardized_euclidean"`}{
+  \item{\code{"standardized_euclidean"}}{
   Euclidean distance with each feature scaled by its sample variance
-  \eqn{s_c^2} estimated from `A`.
+  \eqn{s_c^2} estimated from \code{A}.
   \deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k}\frac{(x_{ic}-y_{jc})^2}{s_c^2}},}
   where features with zero variance are dropped.
   }
 
-  \item{`"spearman"`}{
+  \item{\code{"spearman"}}{
   Spearman correlation distance, i.e. one minus Spearman's rank correlation
-  computed between the within-row average ranks of `x_i` and `y_j`.
+  computed between the within-row average ranks of \eqn{x_i} and \eqn{y_j}.
   \deqn{d(x_i, y_j) = 1 - \rho_s(x_i, y_j).}
   }
 
-  \item{`"mahalanobis"`}{
+  \item{\code{"mahalanobis"}}{
   Mahalanobis distance using the sample covariance matrix \eqn{S} estimated
-  from `A` (\eqn{B} is ignored).
+  from \code{A} (\eqn{B} is ignored).
   \deqn{d(x_i, x_j) = \sqrt{(x_i - x_j)^\top S^{-1}(x_i - x_j)}.}
   }
+
+  \item{\code{"hamming"}}{
+  Hamming distance, counts the number of positions where values differ.
+  Useful for categorical/binary data.
+  \deqn{d(x_i, y_j) = \sum_{c=1}^{k} \mathbf{1}(x_{ic} \neq y_{jc}).}
+  }
+
+  \item{\code{"jaccard"}}{
+  Jaccard distance for binary/set-based data (treating non-zero values as
+  1).
+  \deqn{d(x_i, y_j) = 1 - \frac{|x_i \cap y_j|}{|x_i \cup y_j|},}
+  where intersection and union are computed treating non-zero elements as 1.
+  }
+
+  \item{\code{"gower"}}{
+  Gower distance for mixed data types. Scales each feature by its range and
+  averages the absolute differences.
+  \deqn{d(x_i, y_j) = \frac{1}{k}\sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{R_c},}
+  where \eqn{R_c} is the range (max - min) of feature \eqn{c} in \code{A}.
+  }
 }
+}
+\examples{
+set.seed(1)
+A <- matrix(rnorm(5 * 3), nrow = 5, ncol = 3)
+B <- matrix(rnorm(4 * 3), nrow = 4, ncol = 3)
+
+# cross distances between the rows of A and the rows of B
+fdist(A, B, method = "euclidean")
+
+# distances within the rows of A (symmetric, zero diagonal)
+fdist(A, method = "manhattan")
+
+# Minkowski distance of order p = 3
+fdist(A, B, method = "minkowski", p = 3)
+
+# binary data: Hamming and Jaccard distances
+X <- matrix(rbinom(5 * 8, 1, 0.5), nrow = 5, ncol = 8)
+fdist(X, method = "hamming")
+fdist(X, method = "jaccard")
+
+# mixed-scale numeric data: Gower distance
+fdist(A, method = "gower")
+
+# geographic coordinates (latitude, longitude) in degrees
+cities <- rbind(c(40.4168, -3.7038),  # Madrid
+                c(41.3851,  2.1734),  # Barcelona
+                c(48.8566,  2.3522))  # Paris
+fdist(cities, method = "haversine")
+
+# all available methods
+fdistregistry$get_entry_names()
+
+}
+\seealso{
+\code{\link{fdistregistry}} for the registry of available distance
+backends.
 }

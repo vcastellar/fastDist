@@ -1,3 +1,4 @@
-useDynLib(fastDist, .registration=TRUE)
+useDynLib(fastDist, .registration = TRUE)
+export(fdist)
+export(fdistregistry)
 importFrom(Rcpp, evalCpp)
-exportPattern("^[[:alpha:]]+")
