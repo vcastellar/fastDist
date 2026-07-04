@@ -4,6 +4,7 @@ library(microbenchmark)
 library(ggplot2)
 library(parallelDist)
 library(parallel)
+library(rdist)
 A <- matrix(sample(1:20, 15), 5, 3, byrow = T)
 B <- matrix(1:12, 4, 3)
 
@@ -21,6 +22,7 @@ proxy::dist(A,  method = "Euclidean")
 
 fdist(A, method = "manhattan")
 fdist(A, B, method = "manhattan")
+cdist(A, B, metric = "manhattan")
 
 
 
@@ -48,8 +50,8 @@ proxy::dist(A, B, method = "correlation")
 
 # benchmark
 #------------------------------------------------------------------------------
-B <- matrix(rnorm(200000), 2000, 100)
-A <- matrix(rnorm(50000),   500, 100)
+B <- matrix(rnorm(1000000), 10000, 100)
+A <- matrix(rnorm(50000), 500, 100)
 
 rows <- seq(100, 100, 20) * 1e2
 cols <- 100
@@ -57,8 +59,12 @@ cols <- 100
 res <- microbenchmark(
   fastDist_euclidean = fdist(A, B, method = "euclidean"),
   proxy_euclidean    = proxy::dist(A, B, method = "Euclidean"),
+  rdist_euclidean    = cdist(A, B, metric = "euclidean"),
+  
   fastDist_manhattan = fdist(A, B, method = "manhattan"),
   proxy_manhattan    = proxy::dist(A, B, method = "Manhattan"),
+  rdist_manhattan    = cdist(A, B, metric = "manhattan"),
+  
   
   # fastDist_minkowsk = fdist(A, B, method = "minkowski", p = 5),
   # 
@@ -69,7 +75,7 @@ res <- microbenchmark(
   # proxy_supremum     = proxy::dist(A, B, method = "Supremum"),
   # fastDist_mahalanobis = fdist(A, method = "mahalanobis"),
   # proxy_mahalanobis    = proxy::dist(A, method = "mahalanobis"),
-  times = 20
+  times = 100
 )
 autoplot(res)
 

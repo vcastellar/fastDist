@@ -127,9 +127,9 @@ try_cross <- function(pkg, A, B, method, p) {
 #' @param tol Tolerance used when checking that all packages agree.
 #' @return A data.frame with columns package, method, mean (seconds),
 #'   b_rows, a_rows, n_features and agrees (max abs difference vs fastDist).
-run_benchmark <- function(a_rows = 1000,
-                          b_rows = c(1000, 5000, 10000),
-                          n_features = 1000,
+run_benchmark <- function(a_rows = 5000,
+                          b_rows = c(1000, 5000),
+                          n_features = 100,
                           p = 2,
                           times = 5,
                           methods = method_map$fastDist,

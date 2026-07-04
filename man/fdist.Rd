@@ -15,27 +15,24 @@ observations in rows. If \code{NULL}, \code{A} is used (except for
 \code{method = "mahalanobis"}, which always uses only \code{A}).}
 
 \item{method}{Character scalar with the distance method to use. Supported
-values are \code{"euclidean"}, \code{"manhattan"}, \code{"minkowski"},
-\code{"correlation"}, \code{"cosine"}, \code{"canberra"},
-\code{"supremum"}, \code{"squared_euclidean"}, \code{"bray_curtis"},
-\code{"hellinger"}, \code{"chi_squared"}, \code{"jensen_shannon"},
-\code{"haversine"}, \code{"standardized_euclidean"}, \code{"spearman"},
-\code{"mahalanobis"}, \code{"hamming"}, \code{"jaccard"}, and
-\code{"gower"}.}
+values are \code{"euclidean"}, \code{"manhattan"}, \code{"minkowski"}, \code{"correlation"},
+\code{"cosine"}, \code{"canberra"}, \code{"supremum"}, \code{"squared_euclidean"},
+\code{"bray_curtis"}, \code{"hellinger"}, \code{"chi_squared"}, \code{"jensen_shannon"},
+\code{"haversine"}, \code{"standardized_euclidean"}, \code{"spearman"}, \code{"mahalanobis"},
+\code{"hamming"}, \code{"jaccard"}, and \code{"gower"}.}
 
-\item{p}{Numeric scalar used only when \code{method = "minkowski"}. It is
-the exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
+\item{p}{Numeric scalar used only when \code{method = "minkowski"}. It is the
+exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
 definition). If \code{NULL} (the default), the value stored in
-\code{\link{fdistregistry}} is used (\code{p = 2}).}
+\link{fdistregistry} is used (\code{p = 2}).}
 }
 \value{
-A numeric matrix where entry \code{[i, j]} is the distance between row
-\code{i} of \code{A} and row \code{j} of \code{B} (or row \code{j} of
-\code{A} when \code{B = NULL}).
+A numeric matrix where entry \verb{[i, j]} is the distance between row
+\code{i} of \code{A} and row \code{j} of \code{B} (or row \code{j} of \code{A} when \code{B = NULL}).
 }
 \description{
-Computes pairwise distances between rows of \code{A} and \code{B} using
-distance backends registered in \code{\link{fdistregistry}}.
+Computes pairwise distances between rows of \code{A} and \code{B} using distance
+backends registered in \code{fdistregistry}.
 }
 \details{
 Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row \code{i} from \code{A} and
@@ -44,125 +41,123 @@ Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row \code{i} from \code{A} and
 Available \code{method} values are:
 
 \describe{
-  \item{\code{"euclidean"}}{
-  Standard \eqn{L_2} distance.
-  \deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k} (x_{ic} - y_{jc})^2}.}
-  }
+\item{\code{"euclidean"}}{
+Standard \eqn{L_2} distance.
+\deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k} (x_{ic} - y_{jc})^2}.}
+}
 
-  \item{\code{"manhattan"}}{
-  City-block (\eqn{L_1}) distance.
-  \deqn{d(x_i, y_j) = \sum_{c=1}^{k} |x_{ic} - y_{jc}|.}
-  }
+\item{\code{"manhattan"}}{
+City-block (\eqn{L_1}) distance.
+\deqn{d(x_i, y_j) = \sum_{c=1}^{k} |x_{ic} - y_{jc}|.}
+}
 
-  \item{\code{"minkowski"}}{
-  Generalized \eqn{L_p} distance controlled by \code{p}.
-  \deqn{d(x_i, y_j) = \left(\sum_{c=1}^{k} |x_{ic} - y_{jc}|^p\right)^{1/p}.}
-  Special cases: \code{p = 1} gives Manhattan and \code{p = 2} gives
-  Euclidean.
-  }
+\item{\code{"minkowski"}}{
+Generalized \eqn{L_p} distance controlled by \code{p}.
+\deqn{d(x_i, y_j) = \left(\sum_{c=1}^{k} |x_{ic} - y_{jc}|^p\right)^{1/p}.}
+Special cases: \code{p = 1} gives Manhattan and \code{p = 2} gives Euclidean.
+}
 
-  \item{\code{"correlation"}}{
-  Correlation distance, defined as one minus the Pearson correlation between
-  centered row vectors.
-  \deqn{d(x_i, y_j) = 1 - \frac{\sum_{c=1}^{k}(x_{ic}-\bar{x}_i)(y_{jc}-\bar{y}_j)}
+\item{\code{"correlation"}}{
+Correlation distance, defined as one minus the Pearson correlation between
+centered row vectors.
+\deqn{d(x_i, y_j) = 1 - \frac{\sum_{c=1}^{k}(x_{ic}-\bar{x}_i)(y_{jc}-\bar{y}_j)}
   {\sqrt{\sum_{c=1}^{k}(x_{ic}-\bar{x}_i)^2}\sqrt{\sum_{c=1}^{k}(y_{jc}-\bar{y}_j)^2}}.}
-  }
+}
 
-  \item{\code{"cosine"}}{
-  Cosine distance, defined as one minus cosine similarity.
-  \deqn{d(x_i, y_j) = 1 - \frac{\sum_{c=1}^{k}x_{ic}y_{jc}}
+\item{\code{"cosine"}}{
+Cosine distance, defined as one minus cosine similarity.
+\deqn{d(x_i, y_j) = 1 - \frac{\sum_{c=1}^{k}x_{ic}y_{jc}}
   {\sqrt{\sum_{c=1}^{k}x_{ic}^2}\sqrt{\sum_{c=1}^{k}y_{jc}^2}}.}
-  }
+}
 
-  \item{\code{"canberra"}}{
-  Canberra distance (feature-wise normalized absolute differences).
-  \deqn{d(x_i, y_j) = \sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{|x_{ic}|+|y_{jc}|},}
-  where terms with zero denominator contribute \code{0}.
-  }
+\item{\code{"canberra"}}{
+Canberra distance (feature-wise normalized absolute differences).
+\deqn{d(x_i, y_j) = \sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{|x_{ic}|+|y_{jc}|},}
+where terms with zero denominator contribute \code{0}.
+}
 
-  \item{\code{"supremum"}}{
-  Supremum (Chebyshev, \eqn{L_\infty}) distance.
-  \deqn{d(x_i, y_j) = \max_{c=1,\ldots,k}|x_{ic}-y_{jc}|.}
-  }
+\item{\code{"supremum"}}{
+Supremum (Chebyshev, \eqn{L_\infty}) distance.
+\deqn{d(x_i, y_j) = \max_{c=1,\ldots,k}|x_{ic}-y_{jc}|.}
+}
 
-  \item{\code{"squared_euclidean"}}{
-  Squared Euclidean distance (Euclidean without the final square root),
-  useful for clustering algorithms such as k-means.
-  \deqn{d(x_i, y_j) = \sum_{c=1}^{k} (x_{ic} - y_{jc})^2.}
-  }
+\item{\code{"squared_euclidean"}}{
+Squared Euclidean distance (Euclidean without the final square root),
+useful for clustering algorithms such as k-means.
+\deqn{d(x_i, y_j) = \sum_{c=1}^{k} (x_{ic} - y_{jc})^2.}
+}
 
-  \item{\code{"bray_curtis"}}{
-  Bray-Curtis dissimilarity, common for abundance/compositional data.
-  \deqn{d(x_i, y_j) = \frac{\sum_{c=1}^{k}|x_{ic}-y_{jc}|}
+\item{\code{"bray_curtis"}}{
+Bray-Curtis dissimilarity, common for abundance/compositional data.
+\deqn{d(x_i, y_j) = \frac{\sum_{c=1}^{k}|x_{ic}-y_{jc}|}
   {\sum_{c=1}^{k}|x_{ic}+y_{jc}|},}
-  where a zero denominator yields \code{0}.
-  }
+where a zero denominator yields \code{0}.
+}
 
-  \item{\code{"hellinger"}}{
-  Hellinger distance between non-negative vectors (e.g. distributions).
-  \deqn{d(x_i, y_j) = \frac{1}{\sqrt{2}}
+\item{\code{"hellinger"}}{
+Hellinger distance between non-negative vectors (e.g. distributions).
+\deqn{d(x_i, y_j) = \frac{1}{\sqrt{2}}
   \sqrt{\sum_{c=1}^{k}(\sqrt{x_{ic}}-\sqrt{y_{jc}})^2}.}
-  }
+}
 
-  \item{\code{"chi_squared"}}{
-  Symmetric chi-squared distance for histograms / non-negative data.
-  \deqn{d(x_i, y_j) = \frac{1}{2}\sum_{c=1}^{k}
+\item{\code{"chi_squared"}}{
+Symmetric chi-squared distance for histograms / non-negative data.
+\deqn{d(x_i, y_j) = \frac{1}{2}\sum_{c=1}^{k}
   \frac{(x_{ic}-y_{jc})^2}{x_{ic}+y_{jc}},}
-  where terms with zero denominator contribute \code{0}.
-  }
+where terms with zero denominator contribute \code{0}.
+}
 
-  \item{\code{"jensen_shannon"}}{
-  Jensen-Shannon distance (square root of the Jensen-Shannon divergence,
-  natural logarithm). Each row is normalized to sum to one beforehand. With
-  \eqn{m = (x_i + y_j)/2},
-  \deqn{d(x_i, y_j) = \sqrt{\tfrac{1}{2}\sum_c x_{ic}\log\frac{x_{ic}}{m_c}
-  + \tfrac{1}{2}\sum_c y_{jc}\log\frac{y_{jc}}{m_c}}.}
-  }
+\item{\code{"jensen_shannon"}}{
+Jensen-Shannon distance (square root of the Jensen-Shannon divergence,
+natural logarithm). Each row is normalized to sum to one beforehand. With
+\eqn{m = (x_i + y_j)/2},
+\deqn{d(x_i, y_j) = \sqrt{\tfrac{1}{2}\!\sum_c x_{ic}\log\frac{x_{ic}}{m_c}
+  + \tfrac{1}{2}\!\sum_c y_{jc}\log\frac{y_{jc}}{m_c}}.}
+}
 
-  \item{\code{"haversine"}}{
-  Great-circle distance in kilometres between points given as
-  \code{(latitude, longitude)} in degrees (requires exactly two columns;
-  Earth radius 6371 km).
-  }
+\item{\code{"haversine"}}{
+Great-circle distance in kilometres between points given as
+\verb{(latitude, longitude)} in degrees (requires exactly two columns; Earth
+radius 6371 km).
+}
 
-  \item{\code{"standardized_euclidean"}}{
-  Euclidean distance with each feature scaled by its sample variance
-  \eqn{s_c^2} estimated from \code{A}.
-  \deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k}\frac{(x_{ic}-y_{jc})^2}{s_c^2}},}
-  where features with zero variance are dropped.
-  }
+\item{\code{"standardized_euclidean"}}{
+Euclidean distance with each feature scaled by its sample variance
+\eqn{s_c^2} estimated from \code{A}.
+\deqn{d(x_i, y_j) = \sqrt{\sum_{c=1}^{k}\frac{(x_{ic}-y_{jc})^2}{s_c^2}},}
+where features with zero variance are dropped.
+}
 
-  \item{\code{"spearman"}}{
-  Spearman correlation distance, i.e. one minus Spearman's rank correlation
-  computed between the within-row average ranks of \eqn{x_i} and \eqn{y_j}.
-  \deqn{d(x_i, y_j) = 1 - \rho_s(x_i, y_j).}
-  }
+\item{\code{"spearman"}}{
+Spearman correlation distance, i.e. one minus Spearman's rank correlation
+computed between the within-row average ranks of \code{x_i} and \code{y_j}.
+\deqn{d(x_i, y_j) = 1 - \rho_s(x_i, y_j).}
+}
 
-  \item{\code{"mahalanobis"}}{
-  Mahalanobis distance using the sample covariance matrix \eqn{S} estimated
-  from \code{A} (\eqn{B} is ignored).
-  \deqn{d(x_i, x_j) = \sqrt{(x_i - x_j)^\top S^{-1}(x_i - x_j)}.}
-  }
+\item{\code{"mahalanobis"}}{
+Mahalanobis distance using the sample covariance matrix \eqn{S} estimated
+from \code{A} (\eqn{B} is ignored).
+\deqn{d(x_i, x_j) = \sqrt{(x_i - x_j)^\top S^{-1}(x_i - x_j)}.}
+}
 
-  \item{\code{"hamming"}}{
-  Hamming distance, counts the number of positions where values differ.
-  Useful for categorical/binary data.
-  \deqn{d(x_i, y_j) = \sum_{c=1}^{k} \mathbf{1}(x_{ic} \neq y_{jc}).}
-  }
+\item{\code{"hamming"}}{
+Hamming distance, counts the number of positions where values differ.
+Useful for categorical/binary data.
+\deqn{d(x_i, y_j) = \sum_{c=1}^{k} \mathbb{1}(x_{ic} \neq y_{jc}).}
+}
 
-  \item{\code{"jaccard"}}{
-  Jaccard distance for binary/set-based data (treating non-zero values as
-  1).
-  \deqn{d(x_i, y_j) = 1 - \frac{|x_i \cap y_j|}{|x_i \cup y_j|},}
-  where intersection and union are computed treating non-zero elements as 1.
-  }
+\item{\code{"jaccard"}}{
+Jaccard distance for binary/set-based data (treating non-zero values as 1).
+\deqn{d(x_i, y_j) = 1 - \frac{|x_i \cap y_j|}{|x_i \cup y_j|},}
+where intersection and union are computed treating non-zero elements as 1.
+}
 
-  \item{\code{"gower"}}{
-  Gower distance for mixed data types. Scales each feature by its range and
-  averages the absolute differences.
-  \deqn{d(x_i, y_j) = \frac{1}{k}\sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{R_c},}
-  where \eqn{R_c} is the range (max - min) of feature \eqn{c} in \code{A}.
-  }
+\item{\code{"gower"}}{
+Gower distance for mixed data types. Scales each feature by its range and
+averages the absolute differences.
+\deqn{d(x_i, y_j) = \frac{1}{k}\sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{R_c},}
+where \eqn{R_c} is the range (max - min) of feature \eqn{c} in \code{A}.
+}
 }
 }
 \examples{
@@ -198,6 +193,5 @@ fdistregistry$get_entry_names()
 
 }
 \seealso{
-\code{\link{fdistregistry}} for the registry of available distance
-backends.
+\link{fdistregistry} for the registry of available distance backends.
 }

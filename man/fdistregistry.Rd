@@ -5,8 +5,8 @@
 \alias{fdistregistry}
 \title{Registry of Distance Backends}
 \format{
-A \code{registry} object with fields \code{method}, \code{fun}, \code{p}
-and \code{description}.
+A \code{registry} object with fields \code{method}, \code{fun}, \code{p} and
+\code{description}.
 }
 \usage{
 fdistregistry
@@ -14,19 +14,18 @@ fdistregistry
 \description{
 A registry object (created with the \pkg{registry} package) holding the
 distance backends
-available to \code{\link{fdist}()}. Each entry stores the \code{method}
-name (the lookup key), the C++ backend function \code{fun}, an optional
-numeric parameter \code{p} (only used by the Minkowski distance, where it
-defaults to \code{2}) and a short human-readable \code{description}.
+available to \code{\link[=fdist]{fdist()}}. Each entry stores the \code{method} name (the lookup
+key), the C++ backend function \code{fun}, an optional numeric parameter \code{p}
+(only used by the Minkowski distance, where it defaults to \code{2}) and a
+short human-readable \code{description}.
 }
 \details{
 The registry is mainly useful to discover which methods are available:
-
 \itemize{
-  \item \code{fdistregistry$get_entry_names()} returns the method names
-  accepted by the \code{method} argument of \code{\link{fdist}()}.
-  \item \code{fdistregistry$get_entry("euclidean")} returns the full entry
-  of a given method.
+\item \code{fdistregistry$get_entry_names()} returns the method names accepted by
+the \code{method} argument of \code{\link[=fdist]{fdist()}}.
+\item \code{fdistregistry$get_entry("euclidean")} returns the full entry of a
+given method.
 }
 }
 \examples{
@@ -40,6 +39,6 @@ vapply(fdistregistry$get_entry_names(),
 
 }
 \seealso{
-\code{\link{fdist}()}
+\code{\link[=fdist]{fdist()}}
 }
 \keyword{datasets}
