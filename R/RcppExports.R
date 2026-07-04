@@ -65,3 +65,15 @@
     .Call(`_fastDist_mahalanobis`, Ar)
 }
 
+.hamming <- function(Ar, Br) {
+    .Call(`_fastDist_hamming`, Ar, Br)
+}
+
+.jaccard <- function(Ar, Br) {
+    .Call(`_fastDist_jaccard`, Ar, Br)
+}
+
+.gower <- function(Ar, Br) {
+    .Call(`_fastDist_gower`, Ar, Br)
+}
+

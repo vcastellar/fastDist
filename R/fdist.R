@@ -12,8 +12,8 @@
 #'   values are `"euclidean"`, `"manhattan"`, `"minkowski"`, `"correlation"`,
 #'   `"cosine"`, `"canberra"`, `"supremum"`, `"squared_euclidean"`,
 #'   `"bray_curtis"`, `"hellinger"`, `"chi_squared"`, `"jensen_shannon"`,
-#'   `"haversine"`, `"standardized_euclidean"`, `"spearman"`, and
-#'   `"mahalanobis"`.
+#'   `"haversine"`, `"standardized_euclidean"`, `"spearman"`, `"mahalanobis"`,
+#'   `"hamming"`, `"jaccard"`, and `"gower"`.
 #' @param p Numeric scalar used only when `method = "minkowski"`. It is the
 #'   exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
 #'   definition).
@@ -122,6 +122,25 @@
 #'   Mahalanobis distance using the sample covariance matrix \eqn{S} estimated
 #'   from `A` (\eqn{B} is ignored).
 #'   \deqn{d(x_i, x_j) = \sqrt{(x_i - x_j)^\top S^{-1}(x_i - x_j)}.}
+#'   }
+#'
+#'   \item{`"hamming"`}{
+#'   Hamming distance, counts the number of positions where values differ.
+#'   Useful for categorical/binary data.
+#'   \deqn{d(x_i, y_j) = \sum_{c=1}^{k} \mathbb{1}(x_{ic} \neq y_{jc}).}
+#'   }
+#'
+#'   \item{`"jaccard"`}{
+#'   Jaccard distance for binary/set-based data (treating non-zero values as 1).
+#'   \deqn{d(x_i, y_j) = 1 - \frac{|x_i \cap y_j|}{|x_i \cup y_j|},}
+#'   where intersection and union are computed treating non-zero elements as 1.
+#'   }
+#'
+#'   \item{`"gower"`}{
+#'   Gower distance for mixed data types. Scales each feature by its range and
+#'   averages the absolute differences.
+#'   \deqn{d(x_i, y_j) = \frac{1}{k}\sum_{c=1}^{k}\frac{|x_{ic}-y_{jc}|}{R_c},}
+#'   where \eqn{R_c} is the range (max - min) of feature \eqn{c} in `A`.
 #'   }
 #' }
 #'

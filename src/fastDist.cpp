@@ -924,14 +924,14 @@ NumericMatrix spearman(NumericMatrix Ar, NumericMatrix Br) {
 NumericMatrix mahalanobis(NumericMatrix Ar) {
   int m = Ar.nrow(),
     k = Ar.ncol();
-  arma::mat A = arma::mat(Ar.begin(), m, k, false); 
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
   arma::mat S = arma::inv_sympd(arma::cov(A));
   arma::mat AS = A * S;
   arma::vec q = arma::sum(AS % A, 1);
   arma::mat res = arma::mat(m, m, arma::fill::zeros);
   const double* AS_p = AS.memptr();
   const double* A_p = A.memptr();
-  
+
 #pragma omp parallel for schedule(static) if(m * m > 10000)
   for (int i = 0; i < m; i++) {
     for (int j = i; j < m; j++) {
@@ -947,6 +947,157 @@ NumericMatrix mahalanobis(NumericMatrix Ar) {
       }
     }
   }
-  
-  return wrap(res); 
+
+  return wrap(res);
+}
+
+
+// hamming distance (binary/categorical)
+// [[Rcpp::export(.hamming)]]
+NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        int dist = 0;
+        for (int col = 0; col < k; col++) {
+          if (Ap[col * m + i] != Bp[col * n + j]) {
+            dist++;
+          }
+        }
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        int dist = 0;
+        for (int col = 0; col < k; col++) {
+          if (Ap[col * m + i] != Bp[col * n + j]) {
+            dist++;
+          }
+        }
+        res(i, j) = dist;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
+// jaccard distance (binary/set-based)
+// [[Rcpp::export(.jaccard)]]
+NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        int intersection = 0, union_size = 0;
+        for (int col = 0; col < k; col++) {
+          const bool ai = Ap[col * m + i] != 0.0;
+          const bool bi = Bp[col * n + j] != 0.0;
+          if (ai || bi) union_size++;
+          if (ai && bi) intersection++;
+        }
+        const double dist = union_size > 0 ? 1.0 - (double)intersection / union_size : 0.0;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        int intersection = 0, union_size = 0;
+        for (int col = 0; col < k; col++) {
+          const bool ai = Ap[col * m + i] != 0.0;
+          const bool bi = Bp[col * n + j] != 0.0;
+          if (ai || bi) union_size++;
+          if (ai && bi) intersection++;
+        }
+        res(i, j) = union_size > 0 ? 1.0 - (double)intersection / union_size : 0.0;
+      }
+    }
+  }
+
+  return wrap(res);
+}
+
+
+// gower distance (mixed data types)
+// [[Rcpp::export(.gower)]]
+NumericMatrix gower(NumericMatrix Ar, NumericMatrix Br) {
+  int m = Ar.nrow(),
+    n = Br.nrow(),
+    k = Ar.ncol();
+  arma::mat A = arma::mat(Ar.begin(), m, k, false);
+  arma::mat B = arma::mat(Br.begin(), n, k, false);
+  arma::mat res = arma::mat(m, n, arma::fill::zeros);
+  const bool symmetric = same_input(Ar, Br);
+  const double* Ap = A.memptr();
+  const double* Bp = B.memptr();
+
+  // compute range for each column (max - min from A)
+  arma::vec range(k);
+  for (int col = 0; col < k; col++) {
+    const double minVal = A.col(col).min();
+    const double maxVal = A.col(col).max();
+    range[col] = maxVal - minVal;
+    if (range[col] == 0.0) range[col] = 1.0; // avoid division by zero
+  }
+
+  if (symmetric) {
+#pragma omp parallel for schedule(static) if(m * m > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = i; j < m; j++) {
+        double acc = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double a = Ap[col * m + i];
+          const double b = Bp[col * n + j];
+          acc += std::abs(a - b) / range[col];
+        }
+        const double dist = acc / k;
+        res(i, j) = dist;
+        if (i != j) res(j, i) = dist;
+      }
+    }
+  } else {
+#pragma omp parallel for schedule(static) if(m * n > 10000)
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        double acc = 0.0;
+        for (int col = 0; col < k; col++) {
+          const double a = Ap[col * m + i];
+          const double b = Bp[col * n + j];
+          acc += std::abs(a - b) / range[col];
+        }
+        res(i, j) = acc / k;
+      }
+    }
+  }
+
+  return wrap(res);
 }

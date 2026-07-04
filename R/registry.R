@@ -77,6 +77,17 @@ fdistregistry$set_entry(method = "mahalanobis",
                         fun    = .mahalanobis,
                         description = "Mahalanobis distance")
 
+fdistregistry$set_entry(method = "hamming",
+                        fun    = .hamming,
+                        description = "Hamming distance")
+
+fdistregistry$set_entry(method = "jaccard",
+                        fun    = .jaccard,
+                        description = "Jaccard distance")
+
+fdistregistry$set_entry(method = "gower",
+                        fun    = .gower,
+                        description = "Gower distance")
 
 
 
