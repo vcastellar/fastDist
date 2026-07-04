@@ -4,3 +4,6 @@
 ^test\.R$
 ^test\.png$
 ^LICENSE$
+^cran-comments\.md$
+^\.github$
+^\.gitignore$

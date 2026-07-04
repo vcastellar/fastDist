@@ -1,27 +1,35 @@
 Package: fastDist
 Type: Package
 Title: Fast Pairwise Distances Between the Rows of Two Matrices
-Version: 1.0
-Date: 2021-03-19
+Version: 1.1.0
+Date: 2026-07-04
 Authors@R:
     person("Vicente", "Castellar Sebastia", role = c("aut", "cre"),
            email = "vic.sebastia@gmail.com")
-Maintainer: Vicente Castellar Sebastia <vic.sebastia@gmail.com>
 Description: Fast computation of pairwise distances between the rows of two
     matrices. A single entry point, fdist(), dispatches to C++ backends
-    (built on RcppArmadillo and OpenMP) for a range of distance metrics,
-    including Euclidean, Manhattan, Minkowski, correlation, cosine, Canberra,
-    supremum, squared Euclidean, Bray-Curtis, Hellinger, chi-squared,
-    Jensen-Shannon, Haversine, standardized Euclidean, Spearman and
-    Mahalanobis distances.
+    (built on 'RcppArmadillo', parallelised with 'OpenMP' where available)
+    for a wide range of distance metrics: Euclidean, Manhattan, Minkowski,
+    correlation, cosine, Canberra, supremum, squared Euclidean, Bray-Curtis,
+    Hellinger, chi-squared, Jensen-Shannon, Haversine, standardized
+    Euclidean, Spearman, Mahalanobis, Hamming, Jaccard and Gower distances.
 License: GPL-3
-Imports: Rcpp (>= 1.0.0)
-LinkingTo: Rcpp, RcppArmadillo, registry, parallel
+URL: https://github.com/vcastellar/fastDist
+BugReports: https://github.com/vcastellar/fastDist/issues
+Depends: R (>= 3.5.0)
+Imports: Rcpp (>= 1.0.0),
+    registry
+LinkingTo: Rcpp,
+    RcppArmadillo
 Suggests: testthat,
+    knitr,
+    rmarkdown,
     microbenchmark,
     parallelDist,
-    knitr,
-    rmarkdown
+    proxy,
+    rdist,
+    ggplot2
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Encoding: UTF-8

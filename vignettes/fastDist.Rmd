@@ -1,6 +1,9 @@
 ---
 title: "Computing pairwise distances with fastDist"
-output: rmarkdown::html_vignette
+author: "Vicente Castellar Sebastia"
+output:
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{Computing pairwise distances with fastDist}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,20 +20,29 @@ knitr::opts_chunk$set(
 ## Overview
 
 `fastDist` computes pairwise distances between the rows of two matrices `A`
-and `B`. The single entry point is `fdist()`, which dispatches to C++ backends
-implemented with [RcppArmadillo](https://cran.r-project.org/package=RcppArmadillo)
-and parallelised with OpenMP where available.
+and `B`. The single entry point is `fdist()`, which dispatches to C++
+backends implemented with
+[RcppArmadillo](https://cran.r-project.org/package=RcppArmadillo) and
+parallelised with OpenMP where available.
 
-Given an `m x k` matrix `A` and an `n x k` matrix `B`, `fdist()` returns an
-`m x n` matrix whose entry `[i, j]` is the distance between row `i` of `A` and
-row `j` of `B`. When `B` is omitted, distances are computed within the rows of
-`A` (the result is then a symmetric `m x m` matrix with a zero diagonal).
+Two design decisions distinguish `fastDist` from most alternatives:
+
+* **Cross distances are first class.** Given an `m x k` matrix `A` and an
+  `n x k` matrix `B`, `fdist(A, B, ...)` directly returns the `m x n` matrix
+  whose entry `[i, j]` is the distance between row `i` of `A` and row `j` of
+  `B`. Packages built around `stats::dist()` return square matrices over a
+  single input, so obtaining `A x B` cross distances requires stacking the
+  matrices and slicing the result, which wastes both time and memory.
+* **One interface, many metrics.** The `method` argument selects among 19
+  distance metrics, all sharing the same C++ infrastructure. The available
+  backends are stored in a registry (`fdistregistry`) that can be inspected
+  at run time.
 
 ```{r}
 library(fastDist)
 ```
 
-## A first example
+## Quick start
 
 ```{r}
 set.seed(1)
@@ -42,7 +54,8 @@ fdist(A, B, method = "euclidean")
 ```
 
 Calling `fdist()` with a single matrix computes the full pairwise distance
-matrix within its rows:
+matrix within its rows. The result is then a symmetric matrix with a zero
+diagonal, and only the upper triangle is actually computed:
 
 ```{r}
 fdist(A, method = "euclidean")
@@ -51,13 +64,7 @@ fdist(A, method = "euclidean")
 ## Supported methods
 
 `fdist()` selects the distance via the `method` argument. The available
-methods are:
-
-```{r}
-fdistregistry$get_entry_names()
-```
-
-A short description of each is stored in the registry:
+methods are stored in `fdistregistry`:
 
 ```{r}
 methods <- fdistregistry$get_entry_names()
@@ -69,30 +76,93 @@ descriptions <- vapply(
 data.frame(method = methods, description = descriptions, row.names = NULL)
 ```
 
-### Minkowski distance and the `p` argument
+The remainder of this section groups the methods by the kind of data they
+are intended for.
 
-The `p` argument is only used by `method = "minkowski"` and sets the order of
-the metric. `p = 1` recovers the Manhattan distance and `p = 2` the Euclidean
-distance:
+### General numeric data
+
+The classical metrics `euclidean`, `manhattan`, `minkowski`, `supremum`
+(Chebyshev) and `squared_euclidean` operate on arbitrary numeric data.
+
+The `p` argument is only used by `method = "minkowski"` and sets the order
+of the metric; it defaults to `p = 2`. `p = 1` recovers the Manhattan
+distance and `p = 2` the Euclidean distance:
 
 ```{r}
 fdist(A, B, method = "minkowski", p = 1)
 fdist(A, B, method = "manhattan")
 ```
 
-### Distances for non-negative / compositional data
+`standardized_euclidean` scales each feature by its sample variance
+(estimated from `A`), which makes the metric insensitive to the units in
+which each column is measured:
 
-Some methods (`bray_curtis`, `hellinger`, `chi_squared`, `jensen_shannon`)
-are intended for non-negative data such as histograms, abundances or
-distributions:
+```{r}
+fdist(A, B, method = "standardized_euclidean")
+```
+
+### Shape-based metrics: correlation, cosine and Spearman
+
+These metrics compare the *profile* of two rows rather than their magnitude.
+They are popular for expression data, text embeddings and time series
+profiles:
+
+```{r}
+fdist(A, B, method = "correlation")
+fdist(A, B, method = "cosine")
+fdist(A, B, method = "spearman")
+```
+
+`correlation` is one minus the Pearson correlation, `spearman` is one minus
+Spearman's rank correlation and `cosine` is one minus the cosine similarity.
+
+### Non-negative / compositional data
+
+The methods `bray_curtis`, `hellinger`, `chi_squared` and `jensen_shannon`
+are intended for non-negative data such as histograms, species abundances or
+probability distributions. For `jensen_shannon` each row is normalised to
+sum to one before the computation:
 
 ```{r}
 P <- matrix(runif(5 * 4, 0.1, 5), nrow = 5)
 Q <- matrix(runif(3 * 4, 0.1, 5), nrow = 3)
 fdist(P, Q, method = "jensen_shannon")
+fdist(P, Q, method = "bray_curtis")
 ```
 
-### Haversine distance
+### Binary and categorical data: Hamming and Jaccard
+
+`hamming` counts the number of positions in which two rows differ, which
+makes it appropriate for categorical codes or binary indicators:
+
+```{r}
+X <- matrix(rbinom(6 * 8, 1, 0.5), nrow = 6)
+fdist(X, method = "hamming")
+```
+
+`jaccard` treats each row as a set (non-zero entries are members) and
+returns one minus the ratio of the intersection to the union:
+
+```{r}
+fdist(X, method = "jaccard")
+```
+
+### Mixed-scale data: Gower
+
+`gower` rescales every feature by its range (computed from `A`) before
+averaging the absolute differences, so features measured on very different
+scales contribute equally:
+
+```{r}
+mixed <- cbind(
+  age    = c(25, 47, 31, 60),
+  income = c(20000, 52000, 34000, 71000),
+  score  = c(0.3, 0.9, 0.5, 0.7)
+)
+fdist(mixed, method = "gower")
+```
+
+### Geographic data: Haversine
 
 The `haversine` method computes great-circle distances in kilometres between
 points given as `(latitude, longitude)` in degrees. The input must have
@@ -108,7 +178,7 @@ cities <- matrix(
 fdist(cities, method = "haversine")
 ```
 
-### Mahalanobis distance
+### Covariance-aware data: Mahalanobis
 
 `method = "mahalanobis"` always works within the rows of `A` (any `B` is
 ignored) and uses the sample covariance matrix estimated from `A`:
@@ -119,11 +189,55 @@ fdist(A, method = "mahalanobis")
 
 ## Performance
 
-`fastDist` is designed to be fast for large matrices. A reproducible
-benchmark comparing `fdist()` against `parallelDist::parDist()` for the
-Euclidean, Manhattan and Minkowski methods is available in
-`benchmark/benchmark_parallelDist.R` in the package sources. See the package
-README for an example of the results.
+All backends are written in C++ (RcppArmadillo) and parallelised with OpenMP.
+For symmetric problems (`B = NULL`) only the upper triangle is computed, and
+for the Euclidean family the computation is reformulated as a matrix product
+plus row norms, which is substantially faster than the naive double loop.
+
+The package sources ship two reproducible benchmark scripts (they are not
+installed with the package; see the `benchmark/` directory of the GitHub
+repository):
+
+* `benchmark/benchmark_parallelDist.R` compares `fdist()` against
+  `parallelDist::parDist()`.
+* `benchmark/benchmark_comparison.R` compares `fdist()` against
+  `parallelDist::parDist()`, `proxy::dist()` and `rdist::cdist()` for every
+  metric the four packages share, after checking that all packages agree on
+  the result.
+
+A typical invocation looks like this:
+
+```{r, eval = FALSE}
+source("benchmark/benchmark_comparison.R")
+results <- run_benchmark(
+  a_rows = 1000,
+  b_rows = c(1000, 5000, 10000),
+  n_features = 1000
+)
+print(results)
+plot_benchmark(results)   # requires ggplot2
+```
+
+As a reference, the table below reports the mean time in seconds to compute
+the cross-distance matrix between `A` (`1000 x 1000`) and `B` (with a growing
+number of rows), measured with `microbenchmark` on an Intel i5 10400 (6
+cores). `parallelDist` computes square matrices only, so its timings include
+the necessary `rbind()` + slicing step described above:
+
+| method    | rows of B | fastDist (s) | parallelDist (s) |
+|-----------|-----------|--------------|------------------|
+| euclidean | 1000      | 3.08         | 5.13             |
+| euclidean | 10000     | 31.66        | 51.90            |
+| euclidean | 20000     | 79.66        | 99.47            |
+| manhattan | 1000      | 2.30         | 4.68             |
+| manhattan | 10000     | 38.46        | 54.81            |
+| manhattan | 20000     | 89.92        | 106.93           |
+| minkowski | 1000      | 4.31         | 9.19             |
+| minkowski | 10000     | 64.18        | 94.07            |
+| minkowski | 20000     | 139.66       | 185.13           |
+
+Actual timings depend on hardware, BLAS library and number of OpenMP
+threads; run the scripts on your own machine for meaningful numbers.
 
 ## Session information
 
