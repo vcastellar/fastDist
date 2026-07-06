@@ -5,8 +5,8 @@
 \alias{fdistregistry}
 \title{Registry of Distance Backends}
 \format{
-A \code{registry} object with fields \code{method}, \code{fun}, \code{p} and
-\code{description}.
+A \code{registry} object with fields \code{method}, \code{fun}, \code{description},
+\code{p}, \code{radius}, \code{base}, \code{threshold}, \code{regularize}, \code{weights} and \code{cov}.
 }
 \usage{
 fdistregistry
@@ -15,11 +15,32 @@ fdistregistry
 A registry object (created with the \pkg{registry} package) holding the
 distance backends
 available to \code{\link[=fdist]{fdist()}}. Each entry stores the \code{method} name (the lookup
-key), the C++ backend function \code{fun}, an optional numeric parameter \code{p}
-(only used by the Minkowski distance, where it defaults to \code{2}) and a
-short human-readable \code{description}.
+key), the C++ backend function \code{fun}, a short human-readable
+\code{description}, and the default value of any extra parameter that method
+accepts (used unless overridden through the corresponding argument of
+\code{\link[=fdist]{fdist()}}):
 }
 \details{
+\itemize{
+\item \code{p}: exponent of the Minkowski distance (defaults to \code{2}).
+\item \code{radius}: sphere radius used by the Haversine distance (defaults to
+\code{6371}, the mean Earth radius in km).
+\item \code{base}: logarithm base used by the Jensen-Shannon distance (defaults to
+\code{exp(1)}, i.e. natural log).
+\item \code{threshold}: value above which a feature is considered "present" when
+binarizing data for the Jaccard (defaults to \code{0}) and Hamming (defaults
+to \code{NA}, meaning raw values are compared instead of binarized) distances.
+\item \code{regularize}: ridge added to the diagonal of the covariance matrix used
+by the Mahalanobis distance before inversion (defaults to \code{0}).
+\item \code{weights}: per-feature scale used by the standardized Euclidean
+distance instead of the sample variance of \code{A} (defaults to \code{NULL}).
+\item \code{cov}: precomputed covariance matrix used by the Mahalanobis distance
+instead of the sample covariance of \code{A} (defaults to \code{NULL}).
+}
+
+Methods that do not use a given parameter simply store its default
+(\code{NA} or \code{NULL}, depending on the field).
+
 The registry is mainly useful to discover which methods are available:
 \itemize{
 \item \code{fdistregistry$get_entry_names()} returns the method names accepted by
@@ -36,6 +57,10 @@ fdistregistry$get_entry_names()
 vapply(fdistregistry$get_entry_names(),
        function(m) fdistregistry$get_entry(m)$description,
        character(1))
+
+# default parameters of a specific method
+fdistregistry$get_entry("haversine")$radius
+fdistregistry$get_entry("mahalanobis")$regularize
 
 }
 \seealso{

@@ -18,6 +18,34 @@
 #'   exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
 #'   definition). If `NULL` (the default), the value stored in
 #'   [fdistregistry] is used (`p = 2`).
+#' @param radius Numeric scalar used only when `method = "haversine"`. The
+#'   sphere radius the result is expressed in (e.g. `6371` for kilometres or
+#'   `3958.8` for miles). If `NULL` (the default), the value stored in
+#'   [fdistregistry] is used (`radius = 6371`, the mean Earth radius in km).
+#' @param base Used only when `method = "jensen_shannon"`. Either the
+#'   character shortcuts `"e"` / `"2"`, or a numeric logarithm base
+#'   (\eqn{b > 0}, \eqn{b \neq 1}). Controls the units of the underlying
+#'   divergence (nats for `"e"`, bits for `"2"`). If `NULL` (the default),
+#'   the value stored in [fdistregistry] is used (`base = exp(1)`, i.e.
+#'   natural log, matching the historical behaviour).
+#' @param threshold Numeric scalar used only when `method = "jaccard"` or
+#'   `method = "hamming"`. Values strictly greater than `threshold` are
+#'   treated as `1` (present) before comparing. If `NULL` (the default), the
+#'   value stored in [fdistregistry] is used: `0` for `"jaccard"`, and `NA`
+#'   for `"hamming"` (`NA` disables binarization, comparing raw values for
+#'   exact inequality as before).
+#' @param regularize Numeric scalar used only when `method = "mahalanobis"`.
+#'   Ridge added to the diagonal of the covariance matrix before inversion,
+#'   useful when it is singular or near-singular. If `NULL` (the default),
+#'   the value stored in [fdistregistry] is used (`regularize = 0`).
+#' @param weights Numeric vector used only when `method =
+#'   "standardized_euclidean"`. Per-feature scale used instead of the sample
+#'   variance of `A` (its length must equal `ncol(A)`). If `NULL` (the
+#'   default), the sample variance of `A` is used, as before.
+#' @param cov Numeric matrix used only when `method = "mahalanobis"`. A
+#'   precomputed covariance matrix (`ncol(A)` x `ncol(A)`) used instead of
+#'   the sample covariance of `A`. If `NULL` (the default), the sample
+#'   covariance of `A` is used, as before.
 #'
 #' @details
 #' Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row `i` from `A` and
@@ -162,10 +190,19 @@
 #' # Minkowski distance of order p = 3
 #' fdist(A, B, method = "minkowski", p = 3)
 #'
+#' # Jensen-Shannon distance in bits (base 2) instead of nats
+#' fdist(A, method = "jensen_shannon", base = "2")
+#'
+#' # Mahalanobis distance with a regularized (ridge) covariance matrix
+#' fdist(A, method = "mahalanobis", regularize = 0.01)
+#'
 #' # binary data: Hamming and Jaccard distances
 #' X <- matrix(rbinom(5 * 8, 1, 0.5), nrow = 5, ncol = 8)
 #' fdist(X, method = "hamming")
 #' fdist(X, method = "jaccard")
+#'
+#' # continuous data binarized at a custom threshold before comparing
+#' fdist(A, method = "hamming", threshold = 0.5)
 #'
 #' # mixed-scale numeric data: Gower distance
 #' fdist(A, method = "gower")
@@ -176,34 +213,75 @@
 #'                 c(48.8566,  2.3522))  # Paris
 #' fdist(cities, method = "haversine")
 #'
+#' # Haversine distance in miles instead of the default kilometres
+#' fdist(cities, method = "haversine", radius = 3958.8)
+#'
 #' # all available methods
 #' fdistregistry$get_entry_names()
 #'
 #' @seealso [fdistregistry] for the registry of available distance backends.
 #' @export
-fdist <- function(A, B = NULL, method, p = NULL) {
+fdist <- function(A, B = NULL, method, p = NULL, radius = NULL, base = NULL,
+                   threshold = NULL, regularize = NULL, weights = NULL,
+                   cov = NULL) {
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregistry"))
   }
   A <- as.matrix(A)
   entry <- fdistregistry$get_entry(method)
+
   if (method == "mahalanobis") {
-    result <- entry$fun(A)
+    if (is.null(regularize)) {
+      regularize <- entry$regularize
+    }
+    result <- entry$fun(A, cov, regularize)
   } else {
     if (is.null(B)) {
       B <- A
     } else {
       B <- as.matrix(B)
     }
-    if (is.na(entry$p)) {
-      result <- entry$fun(A, B)
-    } else {
+    if (!is.na(entry$p)) {
       if (is.null(p)) {
         p <- entry$p
       }
       result <- entry$fun(A, B, p)
+    } else if (!is.na(entry$radius)) {
+      if (is.null(radius)) {
+        radius <- entry$radius
+      }
+      result <- entry$fun(A, B, radius)
+    } else if (!is.na(entry$base)) {
+      if (is.null(base)) {
+        base <- entry$base
+      }
+      result <- entry$fun(A, B, resolve_log_base(base))
+    } else if (method %in% c("jaccard", "hamming")) {
+      if (is.null(threshold)) {
+        threshold <- entry$threshold
+      }
+      result <- entry$fun(A, B, threshold)
+    } else if (method == "standardized_euclidean") {
+      result <- entry$fun(A, B, weights)
+    } else {
+      result <- entry$fun(A, B)
     }
   }
 
   result
+}
+
+# resolves the `base` argument of fdist() into a numeric logarithm base
+resolve_log_base <- function(base) {
+  if (is.character(base)) {
+    base <- switch(base,
+                    "e" = exp(1),
+                    "2" = 2,
+                    stop('base must be "e", "2", or a positive number other than 1'))
+  }
+  if (!is.numeric(base) || length(base) != 1L || is.na(base) ||
+      base <= 0 || base == 1) {
+    stop('base must be "e", "2", or a positive number other than 1')
+  }
+  base
 }

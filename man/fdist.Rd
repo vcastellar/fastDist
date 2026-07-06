@@ -4,7 +4,18 @@
 \alias{fdist}
 \title{Fast Pairwise Distance Computation Between Observations}
 \usage{
-fdist(A, B = NULL, method, p = NULL)
+fdist(
+  A,
+  B = NULL,
+  method,
+  p = NULL,
+  radius = NULL,
+  base = NULL,
+  threshold = NULL,
+  regularize = NULL,
+  weights = NULL,
+  cov = NULL
+)
 }
 \arguments{
 \item{A}{A matrix (or object coercible to a matrix) containing source
@@ -25,6 +36,39 @@ values are \code{"euclidean"}, \code{"manhattan"}, \code{"minkowski"}, \code{"co
 exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
 definition). If \code{NULL} (the default), the value stored in
 \link{fdistregistry} is used (\code{p = 2}).}
+
+\item{radius}{Numeric scalar used only when \code{method = "haversine"}. The
+sphere radius the result is expressed in (e.g. \code{6371} for kilometres or
+\code{3958.8} for miles). If \code{NULL} (the default), the value stored in
+\link{fdistregistry} is used (\code{radius = 6371}, the mean Earth radius in km).}
+
+\item{base}{Used only when \code{method = "jensen_shannon"}. Either the
+character shortcuts \code{"e"} / \code{"2"}, or a numeric logarithm base
+(\eqn{b > 0}, \eqn{b \neq 1}). Controls the units of the underlying
+divergence (nats for \code{"e"}, bits for \code{"2"}). If \code{NULL} (the default),
+the value stored in \link{fdistregistry} is used (\code{base = exp(1)}, i.e.
+natural log, matching the historical behaviour).}
+
+\item{threshold}{Numeric scalar used only when \code{method = "jaccard"} or
+\code{method = "hamming"}. Values strictly greater than \code{threshold} are
+treated as \code{1} (present) before comparing. If \code{NULL} (the default), the
+value stored in \link{fdistregistry} is used: \code{0} for \code{"jaccard"}, and \code{NA}
+for \code{"hamming"} (\code{NA} disables binarization, comparing raw values for
+exact inequality as before).}
+
+\item{regularize}{Numeric scalar used only when \code{method = "mahalanobis"}.
+Ridge added to the diagonal of the covariance matrix before inversion,
+useful when it is singular or near-singular. If \code{NULL} (the default),
+the value stored in \link{fdistregistry} is used (\code{regularize = 0}).}
+
+\item{weights}{Numeric vector used only when \code{method = "standardized_euclidean"}. Per-feature scale used instead of the sample
+variance of \code{A} (its length must equal \code{ncol(A)}). If \code{NULL} (the
+default), the sample variance of \code{A} is used, as before.}
+
+\item{cov}{Numeric matrix used only when \code{method = "mahalanobis"}. A
+precomputed covariance matrix (\code{ncol(A)} x \code{ncol(A)}) used instead of
+the sample covariance of \code{A}. If \code{NULL} (the default), the sample
+covariance of \code{A} is used, as before.}
 }
 \value{
 A numeric matrix where entry \verb{[i, j]} is the distance between row
@@ -174,10 +218,19 @@ fdist(A, method = "manhattan")
 # Minkowski distance of order p = 3
 fdist(A, B, method = "minkowski", p = 3)
 
+# Jensen-Shannon distance in bits (base 2) instead of nats
+fdist(A, method = "jensen_shannon", base = "2")
+
+# Mahalanobis distance with a regularized (ridge) covariance matrix
+fdist(A, method = "mahalanobis", regularize = 0.01)
+
 # binary data: Hamming and Jaccard distances
 X <- matrix(rbinom(5 * 8, 1, 0.5), nrow = 5, ncol = 8)
 fdist(X, method = "hamming")
 fdist(X, method = "jaccard")
+
+# continuous data binarized at a custom threshold before comparing
+fdist(A, method = "hamming", threshold = 0.5)
 
 # mixed-scale numeric data: Gower distance
 fdist(A, method = "gower")
@@ -187,6 +240,9 @@ cities <- rbind(c(40.4168, -3.7038),  # Madrid
                 c(41.3851,  2.1734),  # Barcelona
                 c(48.8566,  2.3522))  # Paris
 fdist(cities, method = "haversine")
+
+# Haversine distance in miles instead of the default kilometres
+fdist(cities, method = "haversine", radius = 3958.8)
 
 # all available methods
 fdistregistry$get_entry_names()
