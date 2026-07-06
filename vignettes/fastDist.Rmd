@@ -95,10 +95,12 @@ fdist(A, B, method = "manhattan")
 
 `standardized_euclidean` scales each feature by its sample variance
 (estimated from `A`), which makes the metric insensitive to the units in
-which each column is measured:
+which each column is measured. A custom per-feature scale can be supplied
+through `weights` instead:
 
 ```{r}
 fdist(A, B, method = "standardized_euclidean")
+fdist(A, B, method = "standardized_euclidean", weights = c(1, 1, 1))
 ```
 
 ### Shape-based metrics: correlation, cosine and Spearman
@@ -130,6 +132,14 @@ fdist(P, Q, method = "jensen_shannon")
 fdist(P, Q, method = "bray_curtis")
 ```
 
+`jensen_shannon` uses natural log by default; pass `base = "2"` (or any
+positive number other than 1) to express the divergence in a different base,
+e.g. bits instead of nats:
+
+```{r}
+fdist(P, Q, method = "jensen_shannon", base = "2")
+```
+
 ### Binary and categorical data: Hamming and Jaccard
 
 `hamming` counts the number of positions in which two rows differ, which
@@ -140,11 +150,22 @@ X <- matrix(rbinom(6 * 8, 1, 0.5), nrow = 6)
 fdist(X, method = "hamming")
 ```
 
-`jaccard` treats each row as a set (non-zero entries are members) and
-returns one minus the ratio of the intersection to the union:
+`jaccard` treats each row as a set (values greater than `threshold`, which
+defaults to `0`, are members) and returns one minus the ratio of the
+intersection to the union:
 
 ```{r}
 fdist(X, method = "jaccard")
+```
+
+For continuous data, `threshold` can be used to binarize both `hamming` and
+`jaccard` inputs before comparing (for `hamming`, the default is to compare
+raw values instead, as above):
+
+```{r}
+Y <- matrix(runif(6 * 8), nrow = 6)
+fdist(Y, method = "hamming", threshold = 0.5)
+fdist(Y, method = "jaccard", threshold = 0.5)
 ```
 
 ### Mixed-scale data: Gower
@@ -178,6 +199,13 @@ cities <- matrix(
 fdist(cities, method = "haversine")
 ```
 
+The result is expressed in kilometres by default (`radius = 6371`, the mean
+Earth radius); pass a different `radius` to use another unit, e.g. miles:
+
+```{r}
+fdist(cities, method = "haversine", radius = 3958.8)
+```
+
 ### Covariance-aware data: Mahalanobis
 
 `method = "mahalanobis"` always works within the rows of `A` (any `B` is
@@ -185,6 +213,15 @@ ignored) and uses the sample covariance matrix estimated from `A`:
 
 ```{r}
 fdist(A, method = "mahalanobis")
+```
+
+A precomputed covariance matrix can be supplied through `cov` instead of
+estimating it from `A`, and `regularize` adds a ridge to its diagonal before
+inversion, which helps when the covariance matrix is singular or
+near-singular (e.g. more features than observations):
+
+```{r}
+fdist(A, method = "mahalanobis", regularize = 0.1)
 ```
 
 ## Performance

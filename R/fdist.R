@@ -14,10 +14,35 @@
 #'   `"bray_curtis"`, `"hellinger"`, `"chi_squared"`, `"jensen_shannon"`,
 #'   `"haversine"`, `"standardized_euclidean"`, `"spearman"`, `"mahalanobis"`,
 #'   `"hamming"`, `"jaccard"`, and `"gower"`.
-#' @param p Numeric scalar used only when `method = "minkowski"`. It is the
-#'   exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
-#'   definition). If `NULL` (the default), the value stored in
-#'   [fdistregistry] is used (`p = 2`).
+#' @param ... Extra, method-specific parameters overriding the defaults
+#'   stored in [fdistregistry] (see `fdistregistry$get_entry(method)$params`
+#'   for the defaults of a given method). Recognized names are:
+#'   \describe{
+#'     \item{`p`}{(`method = "minkowski"`) exponent of the Minkowski metric
+#'     (\eqn{p \ge 1} in the standard metric definition). Defaults to `2`.}
+#'     \item{`radius`}{(`method = "haversine"`) sphere radius the result is
+#'     expressed in (e.g. `6371` for kilometres or `3958.8` for miles).
+#'     Defaults to `6371`.}
+#'     \item{`base`}{(`method = "jensen_shannon"`) either the character
+#'     shortcuts `"e"` / `"2"`, or a numeric logarithm base (\eqn{b > 0},
+#'     \eqn{b \neq 1}), controlling the units of the underlying divergence
+#'     (nats for `"e"`, bits for `"2"`). Defaults to `exp(1)` (natural log).}
+#'     \item{`threshold`}{(`method = "jaccard"` or `"hamming"`) values
+#'     strictly greater than `threshold` are treated as `1` (present)
+#'     before comparing. Defaults to `0` for `"jaccard"`; for `"hamming"`
+#'     it defaults to `NA`, which disables binarization and compares raw
+#'     values for exact inequality instead.}
+#'     \item{`regularize`}{(`method = "mahalanobis"`) ridge added to the
+#'     diagonal of the covariance matrix before inversion, useful when it
+#'     is singular or near-singular. Defaults to `0`.}
+#'     \item{`weights`}{(`method = "standardized_euclidean"`) numeric
+#'     vector with the per-feature scale used instead of the sample
+#'     variance of `A` (its length must equal `ncol(A)`). Defaults to
+#'     `NULL`, i.e. the sample variance of `A` is used.}
+#'     \item{`cov`}{(`method = "mahalanobis"`) numeric matrix (`ncol(A)` x
+#'     `ncol(A)`) with a precomputed covariance matrix used instead of the
+#'     sample covariance of `A`. Defaults to `NULL`.}
+#'   }
 #'
 #' @details
 #' Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row `i` from `A` and
@@ -162,10 +187,19 @@
 #' # Minkowski distance of order p = 3
 #' fdist(A, B, method = "minkowski", p = 3)
 #'
+#' # Jensen-Shannon distance in bits (base 2) instead of nats
+#' fdist(A, method = "jensen_shannon", base = "2")
+#'
+#' # Mahalanobis distance with a regularized (ridge) covariance matrix
+#' fdist(A, method = "mahalanobis", regularize = 0.01)
+#'
 #' # binary data: Hamming and Jaccard distances
 #' X <- matrix(rbinom(5 * 8, 1, 0.5), nrow = 5, ncol = 8)
 #' fdist(X, method = "hamming")
 #' fdist(X, method = "jaccard")
+#'
+#' # continuous data binarized at a custom threshold before comparing
+#' fdist(A, method = "hamming", threshold = 0.5)
 #'
 #' # mixed-scale numeric data: Gower distance
 #' fdist(A, method = "gower")
@@ -176,34 +210,51 @@
 #'                 c(48.8566,  2.3522))  # Paris
 #' fdist(cities, method = "haversine")
 #'
+#' # Haversine distance in miles instead of the default kilometres
+#' fdist(cities, method = "haversine", radius = 3958.8)
+#'
 #' # all available methods
 #' fdistregistry$get_entry_names()
 #'
 #' @seealso [fdistregistry] for the registry of available distance backends.
 #' @export
-fdist <- function(A, B = NULL, method, p = NULL) {
+fdist <- function(A, B = NULL, method, ...) {
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregistry"))
   }
   A <- as.matrix(A)
   entry <- fdistregistry$get_entry(method)
+  params <- utils::modifyList(entry$params, list(...))
+
+  if (identical(method, "jensen_shannon") && !is.null(params$base)) {
+    params$base <- resolve_log_base(params$base)
+  }
+
   if (method == "mahalanobis") {
-    result <- entry$fun(A)
+    result <- do.call(entry$fun, c(list(A), params))
   } else {
     if (is.null(B)) {
       B <- A
     } else {
       B <- as.matrix(B)
     }
-    if (is.na(entry$p)) {
-      result <- entry$fun(A, B)
-    } else {
-      if (is.null(p)) {
-        p <- entry$p
-      }
-      result <- entry$fun(A, B, p)
-    }
+    result <- do.call(entry$fun, c(list(A, B), params))
   }
 
   result
+}
+
+# resolves the `base` argument of fdist() into a numeric logarithm base
+resolve_log_base <- function(base) {
+  if (is.character(base)) {
+    base <- switch(base,
+                    "e" = exp(1),
+                    "2" = 2,
+                    stop('base must be "e", "2", or a positive number other than 1'))
+  }
+  if (!is.numeric(base) || length(base) != 1L || is.na(base) ||
+      base <= 0 || base == 1) {
+    stop('base must be "e", "2", or a positive number other than 1')
+  }
+  base
 }

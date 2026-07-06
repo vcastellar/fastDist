@@ -145,38 +145,41 @@ BEGIN_RCPP
 END_RCPP
 }
 // jensenshannon
-NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_jensenshannon(SEXP ArSEXP, SEXP BrSEXP) {
+NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br, double base);
+RcppExport SEXP _fastDist_jensenshannon(SEXP ArSEXP, SEXP BrSEXP, SEXP baseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(jensenshannon(Ar, Br));
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    rcpp_result_gen = Rcpp::wrap(jensenshannon(Ar, Br, base));
     return rcpp_result_gen;
 END_RCPP
 }
 // haversine
-NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_haversine(SEXP ArSEXP, SEXP BrSEXP) {
+NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br, double radius);
+RcppExport SEXP _fastDist_haversine(SEXP ArSEXP, SEXP BrSEXP, SEXP radiusSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(haversine(Ar, Br));
+    Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
+    rcpp_result_gen = Rcpp::wrap(haversine(Ar, Br, radius));
     return rcpp_result_gen;
 END_RCPP
 }
 // standardized_euclidean
-NumericMatrix standardized_euclidean(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_standardized_euclidean(SEXP ArSEXP, SEXP BrSEXP) {
+NumericMatrix standardized_euclidean(NumericMatrix Ar, NumericMatrix Br, Rcpp::Nullable<NumericVector> weights);
+RcppExport SEXP _fastDist_standardized_euclidean(SEXP ArSEXP, SEXP BrSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(standardized_euclidean(Ar, Br));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<NumericVector> >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(standardized_euclidean(Ar, Br, weights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -193,37 +196,41 @@ BEGIN_RCPP
 END_RCPP
 }
 // mahalanobis
-NumericMatrix mahalanobis(NumericMatrix Ar);
-RcppExport SEXP _fastDist_mahalanobis(SEXP ArSEXP) {
+NumericMatrix mahalanobis(NumericMatrix Ar, Rcpp::Nullable<NumericMatrix> cov, double regularize);
+RcppExport SEXP _fastDist_mahalanobis(SEXP ArSEXP, SEXP covSEXP, SEXP regularizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
-    rcpp_result_gen = Rcpp::wrap(mahalanobis(Ar));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<NumericMatrix> >::type cov(covSEXP);
+    Rcpp::traits::input_parameter< double >::type regularize(regularizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(mahalanobis(Ar, cov, regularize));
     return rcpp_result_gen;
 END_RCPP
 }
 // hamming
-NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_hamming(SEXP ArSEXP, SEXP BrSEXP) {
+NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br, double threshold);
+RcppExport SEXP _fastDist_hamming(SEXP ArSEXP, SEXP BrSEXP, SEXP thresholdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(hamming(Ar, Br));
+    Rcpp::traits::input_parameter< double >::type threshold(thresholdSEXP);
+    rcpp_result_gen = Rcpp::wrap(hamming(Ar, Br, threshold));
     return rcpp_result_gen;
 END_RCPP
 }
 // jaccard
-NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br);
-RcppExport SEXP _fastDist_jaccard(SEXP ArSEXP, SEXP BrSEXP) {
+NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br, double threshold);
+RcppExport SEXP _fastDist_jaccard(SEXP ArSEXP, SEXP BrSEXP, SEXP thresholdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Ar(ArSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type Br(BrSEXP);
-    rcpp_result_gen = Rcpp::wrap(jaccard(Ar, Br));
+    Rcpp::traits::input_parameter< double >::type threshold(thresholdSEXP);
+    rcpp_result_gen = Rcpp::wrap(jaccard(Ar, Br, threshold));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -252,13 +259,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fastDist_braycurtis", (DL_FUNC) &_fastDist_braycurtis, 2},
     {"_fastDist_hellinger", (DL_FUNC) &_fastDist_hellinger, 2},
     {"_fastDist_chisquared", (DL_FUNC) &_fastDist_chisquared, 2},
-    {"_fastDist_jensenshannon", (DL_FUNC) &_fastDist_jensenshannon, 2},
-    {"_fastDist_haversine", (DL_FUNC) &_fastDist_haversine, 2},
-    {"_fastDist_standardized_euclidean", (DL_FUNC) &_fastDist_standardized_euclidean, 2},
+    {"_fastDist_jensenshannon", (DL_FUNC) &_fastDist_jensenshannon, 3},
+    {"_fastDist_haversine", (DL_FUNC) &_fastDist_haversine, 3},
+    {"_fastDist_standardized_euclidean", (DL_FUNC) &_fastDist_standardized_euclidean, 3},
     {"_fastDist_spearman", (DL_FUNC) &_fastDist_spearman, 2},
-    {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 1},
-    {"_fastDist_hamming", (DL_FUNC) &_fastDist_hamming, 2},
-    {"_fastDist_jaccard", (DL_FUNC) &_fastDist_jaccard, 2},
+    {"_fastDist_mahalanobis", (DL_FUNC) &_fastDist_mahalanobis, 3},
+    {"_fastDist_hamming", (DL_FUNC) &_fastDist_hamming, 3},
+    {"_fastDist_jaccard", (DL_FUNC) &_fastDist_jaccard, 3},
     {"_fastDist_gower", (DL_FUNC) &_fastDist_gower, 2},
     {NULL, NULL, 0}
 };

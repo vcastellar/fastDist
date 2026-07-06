@@ -45,32 +45,32 @@
     .Call(`_fastDist_chisquared`, Ar, Br)
 }
 
-.jensenshannon <- function(Ar, Br) {
-    .Call(`_fastDist_jensenshannon`, Ar, Br)
+.jensenshannon <- function(Ar, Br, base) {
+    .Call(`_fastDist_jensenshannon`, Ar, Br, base)
 }
 
-.haversine <- function(Ar, Br) {
-    .Call(`_fastDist_haversine`, Ar, Br)
+.haversine <- function(Ar, Br, radius = 6371.0) {
+    .Call(`_fastDist_haversine`, Ar, Br, radius)
 }
 
-.standardized_euclidean <- function(Ar, Br) {
-    .Call(`_fastDist_standardized_euclidean`, Ar, Br)
+.standardized_euclidean <- function(Ar, Br, weights = NULL) {
+    .Call(`_fastDist_standardized_euclidean`, Ar, Br, weights)
 }
 
 .spearman <- function(Ar, Br) {
     .Call(`_fastDist_spearman`, Ar, Br)
 }
 
-.mahalanobis <- function(Ar) {
-    .Call(`_fastDist_mahalanobis`, Ar)
+.mahalanobis <- function(Ar, cov = NULL, regularize = 0.0) {
+    .Call(`_fastDist_mahalanobis`, Ar, cov, regularize)
 }
 
-.hamming <- function(Ar, Br) {
-    .Call(`_fastDist_hamming`, Ar, Br)
+.hamming <- function(Ar, Br, threshold = NA_real_) {
+    .Call(`_fastDist_hamming`, Ar, Br, threshold)
 }
 
-.jaccard <- function(Ar, Br) {
-    .Call(`_fastDist_jaccard`, Ar, Br)
+.jaccard <- function(Ar, Br, threshold = 0.0) {
+    .Call(`_fastDist_jaccard`, Ar, Br, threshold)
 }
 
 .gower <- function(Ar, Br) {

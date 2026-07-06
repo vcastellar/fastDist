@@ -635,8 +635,9 @@ NumericMatrix chisquared(NumericMatrix Ar, NumericMatrix Br) {
 
 
 // jensen-shannon distance
+// base is the logarithm base (M_E for natural log, 2 for bits, ...)
 // [[Rcpp::export(.jensenshannon)]]
-NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br) {
+NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br, double base = M_E) {
   int m = Ar.nrow(),
     n = Br.nrow(),
     k = Ar.ncol();
@@ -644,6 +645,7 @@ NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br) {
   arma::mat B = arma::mat(Br.begin(), n, k, false);
   arma::mat res = arma::mat(m, n, arma::fill::zeros);
   const bool symmetric = same_input(Ar, Br);
+  const double log_base = std::log(base);
 
   // normalise each row to a probability distribution (sum to 1)
   arma::colvec sumA = arma::sum(A, 1);
@@ -668,7 +670,7 @@ NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br) {
           if (q > 0.0) acc += 0.5 * q * std::log(q / mid);
         }
         if (acc < 0.0) acc = 0.0;
-        const double dist = std::sqrt(acc);
+        const double dist = std::sqrt(acc / log_base);
         res(i, j) = dist;
         if (i != j) res(j, i) = dist;
       }
@@ -686,7 +688,7 @@ NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br) {
           if (q > 0.0) acc += 0.5 * q * std::log(q / mid);
         }
         if (acc < 0.0) acc = 0.0;
-        res(i, j) = std::sqrt(acc);
+        res(i, j) = std::sqrt(acc / log_base);
       }
     }
   }
@@ -695,9 +697,9 @@ NumericMatrix jensenshannon(NumericMatrix Ar, NumericMatrix Br) {
 }
 
 
-// haversine (great-circle) distance, in kilometres
+// haversine (great-circle) distance
 // [[Rcpp::export(.haversine)]]
-NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br) {
+NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br, double radius = 6371.0) {
   int m = Ar.nrow(),
     n = Br.nrow(),
     k = Ar.ncol();
@@ -711,7 +713,7 @@ NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br) {
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
   const double deg2rad = M_PI / 180.0;
-  const double R = 6371.0; // mean Earth radius in km
+  const double R = radius; // sphere radius, in the same unit as the result
 
   if (symmetric) {
 #pragma omp parallel for schedule(static) if(m * m > 10000)
@@ -756,9 +758,11 @@ NumericMatrix haversine(NumericMatrix Ar, NumericMatrix Br) {
 
 
 // standardized euclidean distance
-// (each feature scaled by its sample variance, estimated from A)
+// each feature is scaled by 1 / weights[col]; if weights is not supplied,
+// the sample variance of A is used (n-1 denominator)
 // [[Rcpp::export(.standardized_euclidean)]]
-NumericMatrix standardized_euclidean(NumericMatrix Ar, NumericMatrix Br) {
+NumericMatrix standardized_euclidean(NumericMatrix Ar, NumericMatrix Br,
+                                      Rcpp::Nullable<NumericVector> weights = R_NilValue) {
   int m = Ar.nrow(),
     n = Br.nrow(),
     k = Ar.ncol();
@@ -769,11 +773,21 @@ NumericMatrix standardized_euclidean(NumericMatrix Ar, NumericMatrix Br) {
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
 
-  // per-feature sample variance from A (n-1 denominator)
-  arma::rowvec var = arma::var(A, 0, 0);
   arma::vec inv_var(k);
-  for (int col = 0; col < k; col++) {
-    inv_var[col] = var[col] > 0.0 ? 1.0 / var[col] : 0.0;
+  if (weights.isNotNull()) {
+    NumericVector w(weights);
+    if (w.size() != k) {
+      stop("weights must have length equal to ncol(A)");
+    }
+    for (int col = 0; col < k; col++) {
+      inv_var[col] = w[col] > 0.0 ? 1.0 / w[col] : 0.0;
+    }
+  } else {
+    // per-feature sample variance from A (n-1 denominator)
+    arma::rowvec var = arma::var(A, 0, 0);
+    for (int col = 0; col < k; col++) {
+      inv_var[col] = var[col] > 0.0 ? 1.0 / var[col] : 0.0;
+    }
   }
 
   if (symmetric) {
@@ -920,12 +934,32 @@ NumericMatrix spearman(NumericMatrix Ar, NumericMatrix Br) {
 
 
 // mahalanobis distance
+// cov: precomputed covariance matrix (k x k); if NULL, estimated from A
+// regularize: ridge added to the diagonal of the covariance matrix before
+// inversion, useful when it is singular or near-singular
 // [[Rcpp::export(.mahalanobis)]]
-NumericMatrix mahalanobis(NumericMatrix Ar) {
+NumericMatrix mahalanobis(NumericMatrix Ar,
+                           Rcpp::Nullable<NumericMatrix> cov = R_NilValue,
+                           double regularize = 0.0) {
   int m = Ar.nrow(),
     k = Ar.ncol();
   arma::mat A = arma::mat(Ar.begin(), m, k, false);
-  arma::mat S = arma::inv_sympd(arma::cov(A));
+
+  arma::mat covMat;
+  if (cov.isNotNull()) {
+    NumericMatrix covR(cov);
+    if (covR.nrow() != k || covR.ncol() != k) {
+      stop("cov must be a square matrix with as many rows/columns as A has columns");
+    }
+    covMat = arma::mat(covR.begin(), k, k);
+  } else {
+    covMat = arma::cov(A);
+  }
+  if (regularize > 0.0) {
+    covMat += regularize * arma::eye<arma::mat>(k, k);
+  }
+
+  arma::mat S = arma::inv_sympd(covMat);
   arma::mat AS = A * S;
   arma::vec q = arma::sum(AS % A, 1);
   arma::mat res = arma::mat(m, m, arma::fill::zeros);
@@ -953,8 +987,10 @@ NumericMatrix mahalanobis(NumericMatrix Ar) {
 
 
 // hamming distance (binary/categorical)
+// threshold: if not NA, A and B are binarized as (value > threshold) before
+// comparing, instead of comparing raw values for exact inequality
 // [[Rcpp::export(.hamming)]]
-NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
+NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br, double threshold = NA_REAL) {
   int m = Ar.nrow(),
     n = Br.nrow(),
     k = Ar.ncol();
@@ -964,6 +1000,7 @@ NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
   const bool symmetric = same_input(Ar, Br);
   const double* Ap = A.memptr();
   const double* Bp = B.memptr();
+  const bool binarize = !ISNA(threshold);
 
   if (symmetric) {
 #pragma omp parallel for schedule(static) if(m * m > 10000)
@@ -971,7 +1008,10 @@ NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
       for (int j = i; j < m; j++) {
         int dist = 0;
         for (int col = 0; col < k; col++) {
-          if (Ap[col * m + i] != Bp[col * n + j]) {
+          const double a = Ap[col * m + i];
+          const double b = Bp[col * n + j];
+          const bool differ = binarize ? ((a > threshold) != (b > threshold)) : (a != b);
+          if (differ) {
             dist++;
           }
         }
@@ -985,7 +1025,10 @@ NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
       for (int j = 0; j < n; j++) {
         int dist = 0;
         for (int col = 0; col < k; col++) {
-          if (Ap[col * m + i] != Bp[col * n + j]) {
+          const double a = Ap[col * m + i];
+          const double b = Bp[col * n + j];
+          const bool differ = binarize ? ((a > threshold) != (b > threshold)) : (a != b);
+          if (differ) {
             dist++;
           }
         }
@@ -999,8 +1042,10 @@ NumericMatrix hamming(NumericMatrix Ar, NumericMatrix Br) {
 
 
 // jaccard distance (binary/set-based)
+// threshold: values > threshold are treated as 1 (default 0, i.e. any
+// positive value counts as present)
 // [[Rcpp::export(.jaccard)]]
-NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br) {
+NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br, double threshold = 0.0) {
   int m = Ar.nrow(),
     n = Br.nrow(),
     k = Ar.ncol();
@@ -1017,8 +1062,8 @@ NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br) {
       for (int j = i; j < m; j++) {
         int intersection = 0, union_size = 0;
         for (int col = 0; col < k; col++) {
-          const bool ai = Ap[col * m + i] != 0.0;
-          const bool bi = Bp[col * n + j] != 0.0;
+          const bool ai = Ap[col * m + i] > threshold;
+          const bool bi = Bp[col * n + j] > threshold;
           if (ai || bi) union_size++;
           if (ai && bi) intersection++;
         }
@@ -1033,8 +1078,8 @@ NumericMatrix jaccard(NumericMatrix Ar, NumericMatrix Br) {
       for (int j = 0; j < n; j++) {
         int intersection = 0, union_size = 0;
         for (int col = 0; col < k; col++) {
-          const bool ai = Ap[col * m + i] != 0.0;
-          const bool bi = Bp[col * n + j] != 0.0;
+          const bool ai = Ap[col * m + i] > threshold;
+          const bool bi = Bp[col * n + j] > threshold;
           if (ai || bi) union_size++;
           if (ai && bi) intersection++;
         }
