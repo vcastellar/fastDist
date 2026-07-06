@@ -4,9 +4,12 @@
 #' distance backends
 #' available to [fdist()]. Each entry stores the `method` name (the lookup
 #' key), the C++ backend function `fun`, a short human-readable
-#' `description`, and the default value of any extra parameter that method
-#' accepts (used unless overridden through the corresponding argument of
-#' [fdist()]):
+#' `description`, and `params`: a named list with the default value of every
+#' extra parameter that method accepts (used unless overridden through
+#' `...` in [fdist()]). Methods that take no extra parameter simply store
+#' an empty list.
+#'
+#' Currently registered extra parameters are:
 #'
 #' - `p`: exponent of the Minkowski distance (defaults to `2`).
 #' - `radius`: sphere radius used by the Haversine distance (defaults to
@@ -23,18 +26,18 @@
 #' - `cov`: precomputed covariance matrix used by the Mahalanobis distance
 #'   instead of the sample covariance of `A` (defaults to `NULL`).
 #'
-#' Methods that do not use a given parameter simply store its default
-#' (`NA` or `NULL`, depending on the field).
-#'
-#' The registry is mainly useful to discover which methods are available:
+#' The registry is mainly useful to discover which methods are available and
+#' which extra parameters they accept:
 #'
 #' - `fdistregistry$get_entry_names()` returns the method names accepted by
 #'   the `method` argument of [fdist()].
 #' - `fdistregistry$get_entry("euclidean")` returns the full entry of a
 #'   given method.
+#' - `fdistregistry$get_entry("haversine")$params` returns the extra
+#'   parameters (with their defaults) accepted by a given method.
 #'
-#' @format A `registry` object with fields `method`, `fun`, `description`,
-#'   `p`, `radius`, `base`, `threshold`, `regularize`, `weights` and `cov`.
+#' @format A `registry` object with fields `method`, `fun`, `description`
+#'   and `params`.
 #'
 #' @examples
 #' # methods accepted by fdist()
@@ -45,9 +48,9 @@
 #'        function(m) fdistregistry$get_entry(m)$description,
 #'        character(1))
 #'
-#' # default parameters of a specific method
-#' fdistregistry$get_entry("haversine")$radius
-#' fdistregistry$get_entry("mahalanobis")$regularize
+#' # extra parameters (and their defaults) accepted by a specific method
+#' fdistregistry$get_entry("haversine")$params
+#' fdistregistry$get_entry("mahalanobis")$params
 #'
 #' @seealso [fdist()]
 #' @export
@@ -60,20 +63,8 @@ fdistregistry$set_field("fun",
                         type = "function", is_key = FALSE)
 fdistregistry$set_field("description",
                         type = "character", is_key = FALSE)
-fdistregistry$set_field("p",
-                        type = "numeric", is_key = FALSE)
-fdistregistry$set_field("radius",
-                        type = "numeric", is_key = FALSE)
-fdistregistry$set_field("base",
-                        type = "numeric", is_key = FALSE)
-fdistregistry$set_field("threshold",
-                        type = "numeric", is_key = FALSE)
-fdistregistry$set_field("regularize",
-                        type = "numeric", is_key = FALSE)
-fdistregistry$set_field("weights",
-                        is_key = FALSE, default = NULL)
-fdistregistry$set_field("cov",
-                        is_key = FALSE, default = NULL)
+fdistregistry$set_field("params",
+                        is_key = FALSE, default = list())
 
 fdistregistry$set_entry(method = "euclidean",
                         fun    = .euclidean,
@@ -85,7 +76,7 @@ fdistregistry$set_entry(method = "manhattan",
 
 fdistregistry$set_entry(method = "minkowski",
                         fun    = .minkowski,
-                        p      = 2,
+                        params = list(p = 2),
                         description = "Minkowski distance")
 
 fdistregistry$set_entry(method = "correlation",
@@ -123,16 +114,17 @@ fdistregistry$set_entry(method = "chi_squared",
 
 fdistregistry$set_entry(method = "jensen_shannon",
                         fun    = .jensenshannon,
-                        base   = exp(1),
+                        params = list(base = exp(1)),
                         description = "Jensen-Shannon distance")
 
 fdistregistry$set_entry(method = "haversine",
                         fun    = .haversine,
-                        radius = 6371,
+                        params = list(radius = 6371),
                         description = "Haversine (great-circle) distance")
 
 fdistregistry$set_entry(method = "standardized_euclidean",
                         fun    = .standardized_euclidean,
+                        params = list(weights = NULL),
                         description = "standardized Euclidean distance")
 
 fdistregistry$set_entry(method = "spearman",
@@ -141,16 +133,17 @@ fdistregistry$set_entry(method = "spearman",
 
 fdistregistry$set_entry(method = "mahalanobis",
                         fun    = .mahalanobis,
-                        regularize = 0,
+                        params = list(cov = NULL, regularize = 0),
                         description = "Mahalanobis distance")
 
 fdistregistry$set_entry(method = "hamming",
                         fun    = .hamming,
+                        params = list(threshold = NA_real_),
                         description = "Hamming distance")
 
 fdistregistry$set_entry(method = "jaccard",
                         fun    = .jaccard,
-                        threshold = 0,
+                        params = list(threshold = 0),
                         description = "Jaccard distance")
 
 fdistregistry$set_entry(method = "gower",

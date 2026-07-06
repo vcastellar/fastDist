@@ -5,8 +5,8 @@
 \alias{fdistregistry}
 \title{Registry of Distance Backends}
 \format{
-A \code{registry} object with fields \code{method}, \code{fun}, \code{description},
-\code{p}, \code{radius}, \code{base}, \code{threshold}, \code{regularize}, \code{weights} and \code{cov}.
+A \code{registry} object with fields \code{method}, \code{fun}, \code{description}
+and \code{params}.
 }
 \usage{
 fdistregistry
@@ -16,11 +16,13 @@ A registry object (created with the \pkg{registry} package) holding the
 distance backends
 available to \code{\link[=fdist]{fdist()}}. Each entry stores the \code{method} name (the lookup
 key), the C++ backend function \code{fun}, a short human-readable
-\code{description}, and the default value of any extra parameter that method
-accepts (used unless overridden through the corresponding argument of
-\code{\link[=fdist]{fdist()}}):
+\code{description}, and \code{params}: a named list with the default value of every
+extra parameter that method accepts (used unless overridden through
+\code{...} in \code{\link[=fdist]{fdist()}}). Methods that take no extra parameter simply store
+an empty list.
 }
 \details{
+Currently registered extra parameters are:
 \itemize{
 \item \code{p}: exponent of the Minkowski distance (defaults to \code{2}).
 \item \code{radius}: sphere radius used by the Haversine distance (defaults to
@@ -38,15 +40,15 @@ distance instead of the sample variance of \code{A} (defaults to \code{NULL}).
 instead of the sample covariance of \code{A} (defaults to \code{NULL}).
 }
 
-Methods that do not use a given parameter simply store its default
-(\code{NA} or \code{NULL}, depending on the field).
-
-The registry is mainly useful to discover which methods are available:
+The registry is mainly useful to discover which methods are available and
+which extra parameters they accept:
 \itemize{
 \item \code{fdistregistry$get_entry_names()} returns the method names accepted by
 the \code{method} argument of \code{\link[=fdist]{fdist()}}.
 \item \code{fdistregistry$get_entry("euclidean")} returns the full entry of a
 given method.
+\item \code{fdistregistry$get_entry("haversine")$params} returns the extra
+parameters (with their defaults) accepted by a given method.
 }
 }
 \examples{
@@ -58,9 +60,9 @@ vapply(fdistregistry$get_entry_names(),
        function(m) fdistregistry$get_entry(m)$description,
        character(1))
 
-# default parameters of a specific method
-fdistregistry$get_entry("haversine")$radius
-fdistregistry$get_entry("mahalanobis")$regularize
+# extra parameters (and their defaults) accepted by a specific method
+fdistregistry$get_entry("haversine")$params
+fdistregistry$get_entry("mahalanobis")$params
 
 }
 \seealso{

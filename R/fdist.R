@@ -14,38 +14,35 @@
 #'   `"bray_curtis"`, `"hellinger"`, `"chi_squared"`, `"jensen_shannon"`,
 #'   `"haversine"`, `"standardized_euclidean"`, `"spearman"`, `"mahalanobis"`,
 #'   `"hamming"`, `"jaccard"`, and `"gower"`.
-#' @param p Numeric scalar used only when `method = "minkowski"`. It is the
-#'   exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
-#'   definition). If `NULL` (the default), the value stored in
-#'   [fdistregistry] is used (`p = 2`).
-#' @param radius Numeric scalar used only when `method = "haversine"`. The
-#'   sphere radius the result is expressed in (e.g. `6371` for kilometres or
-#'   `3958.8` for miles). If `NULL` (the default), the value stored in
-#'   [fdistregistry] is used (`radius = 6371`, the mean Earth radius in km).
-#' @param base Used only when `method = "jensen_shannon"`. Either the
-#'   character shortcuts `"e"` / `"2"`, or a numeric logarithm base
-#'   (\eqn{b > 0}, \eqn{b \neq 1}). Controls the units of the underlying
-#'   divergence (nats for `"e"`, bits for `"2"`). If `NULL` (the default),
-#'   the value stored in [fdistregistry] is used (`base = exp(1)`, i.e.
-#'   natural log, matching the historical behaviour).
-#' @param threshold Numeric scalar used only when `method = "jaccard"` or
-#'   `method = "hamming"`. Values strictly greater than `threshold` are
-#'   treated as `1` (present) before comparing. If `NULL` (the default), the
-#'   value stored in [fdistregistry] is used: `0` for `"jaccard"`, and `NA`
-#'   for `"hamming"` (`NA` disables binarization, comparing raw values for
-#'   exact inequality as before).
-#' @param regularize Numeric scalar used only when `method = "mahalanobis"`.
-#'   Ridge added to the diagonal of the covariance matrix before inversion,
-#'   useful when it is singular or near-singular. If `NULL` (the default),
-#'   the value stored in [fdistregistry] is used (`regularize = 0`).
-#' @param weights Numeric vector used only when `method =
-#'   "standardized_euclidean"`. Per-feature scale used instead of the sample
-#'   variance of `A` (its length must equal `ncol(A)`). If `NULL` (the
-#'   default), the sample variance of `A` is used, as before.
-#' @param cov Numeric matrix used only when `method = "mahalanobis"`. A
-#'   precomputed covariance matrix (`ncol(A)` x `ncol(A)`) used instead of
-#'   the sample covariance of `A`. If `NULL` (the default), the sample
-#'   covariance of `A` is used, as before.
+#' @param ... Extra, method-specific parameters overriding the defaults
+#'   stored in [fdistregistry] (see `fdistregistry$get_entry(method)$params`
+#'   for the defaults of a given method). Recognized names are:
+#'   \describe{
+#'     \item{`p`}{(`method = "minkowski"`) exponent of the Minkowski metric
+#'     (\eqn{p \ge 1} in the standard metric definition). Defaults to `2`.}
+#'     \item{`radius`}{(`method = "haversine"`) sphere radius the result is
+#'     expressed in (e.g. `6371` for kilometres or `3958.8` for miles).
+#'     Defaults to `6371`.}
+#'     \item{`base`}{(`method = "jensen_shannon"`) either the character
+#'     shortcuts `"e"` / `"2"`, or a numeric logarithm base (\eqn{b > 0},
+#'     \eqn{b \neq 1}), controlling the units of the underlying divergence
+#'     (nats for `"e"`, bits for `"2"`). Defaults to `exp(1)` (natural log).}
+#'     \item{`threshold`}{(`method = "jaccard"` or `"hamming"`) values
+#'     strictly greater than `threshold` are treated as `1` (present)
+#'     before comparing. Defaults to `0` for `"jaccard"`; for `"hamming"`
+#'     it defaults to `NA`, which disables binarization and compares raw
+#'     values for exact inequality instead.}
+#'     \item{`regularize`}{(`method = "mahalanobis"`) ridge added to the
+#'     diagonal of the covariance matrix before inversion, useful when it
+#'     is singular or near-singular. Defaults to `0`.}
+#'     \item{`weights`}{(`method = "standardized_euclidean"`) numeric
+#'     vector with the per-feature scale used instead of the sample
+#'     variance of `A` (its length must equal `ncol(A)`). Defaults to
+#'     `NULL`, i.e. the sample variance of `A` is used.}
+#'     \item{`cov`}{(`method = "mahalanobis"`) numeric matrix (`ncol(A)` x
+#'     `ncol(A)`) with a precomputed covariance matrix used instead of the
+#'     sample covariance of `A`. Defaults to `NULL`.}
+#'   }
 #'
 #' @details
 #' Let \eqn{x_i = (x_{i1}, \ldots, x_{ik})} be row `i` from `A` and
@@ -221,51 +218,27 @@
 #'
 #' @seealso [fdistregistry] for the registry of available distance backends.
 #' @export
-fdist <- function(A, B = NULL, method, p = NULL, radius = NULL, base = NULL,
-                   threshold = NULL, regularize = NULL, weights = NULL,
-                   cov = NULL) {
+fdist <- function(A, B = NULL, method, ...) {
   if (!method %in% fdistregistry$get_entry_names()) {
     stop(paste(method, "not found in fdistregistry"))
   }
   A <- as.matrix(A)
   entry <- fdistregistry$get_entry(method)
+  params <- utils::modifyList(entry$params, list(...))
+
+  if (identical(method, "jensen_shannon") && !is.null(params$base)) {
+    params$base <- resolve_log_base(params$base)
+  }
 
   if (method == "mahalanobis") {
-    if (is.null(regularize)) {
-      regularize <- entry$regularize
-    }
-    result <- entry$fun(A, cov, regularize)
+    result <- do.call(entry$fun, c(list(A), params))
   } else {
     if (is.null(B)) {
       B <- A
     } else {
       B <- as.matrix(B)
     }
-    if (!is.na(entry$p)) {
-      if (is.null(p)) {
-        p <- entry$p
-      }
-      result <- entry$fun(A, B, p)
-    } else if (!is.na(entry$radius)) {
-      if (is.null(radius)) {
-        radius <- entry$radius
-      }
-      result <- entry$fun(A, B, radius)
-    } else if (!is.na(entry$base)) {
-      if (is.null(base)) {
-        base <- entry$base
-      }
-      result <- entry$fun(A, B, resolve_log_base(base))
-    } else if (method %in% c("jaccard", "hamming")) {
-      if (is.null(threshold)) {
-        threshold <- entry$threshold
-      }
-      result <- entry$fun(A, B, threshold)
-    } else if (method == "standardized_euclidean") {
-      result <- entry$fun(A, B, weights)
-    } else {
-      result <- entry$fun(A, B)
-    }
+    result <- do.call(entry$fun, c(list(A, B), params))
   }
 
   result

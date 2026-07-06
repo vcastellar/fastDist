@@ -4,18 +4,7 @@
 \alias{fdist}
 \title{Fast Pairwise Distance Computation Between Observations}
 \usage{
-fdist(
-  A,
-  B = NULL,
-  method,
-  p = NULL,
-  radius = NULL,
-  base = NULL,
-  threshold = NULL,
-  regularize = NULL,
-  weights = NULL,
-  cov = NULL
-)
+fdist(A, B = NULL, method, ...)
 }
 \arguments{
 \item{A}{A matrix (or object coercible to a matrix) containing source
@@ -32,43 +21,35 @@ values are \code{"euclidean"}, \code{"manhattan"}, \code{"minkowski"}, \code{"co
 \code{"haversine"}, \code{"standardized_euclidean"}, \code{"spearman"}, \code{"mahalanobis"},
 \code{"hamming"}, \code{"jaccard"}, and \code{"gower"}.}
 
-\item{p}{Numeric scalar used only when \code{method = "minkowski"}. It is the
-exponent of the Minkowski metric (\eqn{p \ge 1} in the standard metric
-definition). If \code{NULL} (the default), the value stored in
-\link{fdistregistry} is used (\code{p = 2}).}
-
-\item{radius}{Numeric scalar used only when \code{method = "haversine"}. The
-sphere radius the result is expressed in (e.g. \code{6371} for kilometres or
-\code{3958.8} for miles). If \code{NULL} (the default), the value stored in
-\link{fdistregistry} is used (\code{radius = 6371}, the mean Earth radius in km).}
-
-\item{base}{Used only when \code{method = "jensen_shannon"}. Either the
-character shortcuts \code{"e"} / \code{"2"}, or a numeric logarithm base
-(\eqn{b > 0}, \eqn{b \neq 1}). Controls the units of the underlying
-divergence (nats for \code{"e"}, bits for \code{"2"}). If \code{NULL} (the default),
-the value stored in \link{fdistregistry} is used (\code{base = exp(1)}, i.e.
-natural log, matching the historical behaviour).}
-
-\item{threshold}{Numeric scalar used only when \code{method = "jaccard"} or
-\code{method = "hamming"}. Values strictly greater than \code{threshold} are
-treated as \code{1} (present) before comparing. If \code{NULL} (the default), the
-value stored in \link{fdistregistry} is used: \code{0} for \code{"jaccard"}, and \code{NA}
-for \code{"hamming"} (\code{NA} disables binarization, comparing raw values for
-exact inequality as before).}
-
-\item{regularize}{Numeric scalar used only when \code{method = "mahalanobis"}.
-Ridge added to the diagonal of the covariance matrix before inversion,
-useful when it is singular or near-singular. If \code{NULL} (the default),
-the value stored in \link{fdistregistry} is used (\code{regularize = 0}).}
-
-\item{weights}{Numeric vector used only when \code{method = "standardized_euclidean"}. Per-feature scale used instead of the sample
-variance of \code{A} (its length must equal \code{ncol(A)}). If \code{NULL} (the
-default), the sample variance of \code{A} is used, as before.}
-
-\item{cov}{Numeric matrix used only when \code{method = "mahalanobis"}. A
-precomputed covariance matrix (\code{ncol(A)} x \code{ncol(A)}) used instead of
-the sample covariance of \code{A}. If \code{NULL} (the default), the sample
-covariance of \code{A} is used, as before.}
+\item{...}{Extra, method-specific parameters overriding the defaults
+stored in \link{fdistregistry} (see \code{fdistregistry$get_entry(method)$params}
+for the defaults of a given method). Recognized names are:
+\describe{
+\item{\code{p}}{(\code{method = "minkowski"}) exponent of the Minkowski metric
+(\eqn{p \ge 1} in the standard metric definition). Defaults to \code{2}.}
+\item{\code{radius}}{(\code{method = "haversine"}) sphere radius the result is
+expressed in (e.g. \code{6371} for kilometres or \code{3958.8} for miles).
+Defaults to \code{6371}.}
+\item{\code{base}}{(\code{method = "jensen_shannon"}) either the character
+shortcuts \code{"e"} / \code{"2"}, or a numeric logarithm base (\eqn{b > 0},
+\eqn{b \neq 1}), controlling the units of the underlying divergence
+(nats for \code{"e"}, bits for \code{"2"}). Defaults to \code{exp(1)} (natural log).}
+\item{\code{threshold}}{(\code{method = "jaccard"} or \code{"hamming"}) values
+strictly greater than \code{threshold} are treated as \code{1} (present)
+before comparing. Defaults to \code{0} for \code{"jaccard"}; for \code{"hamming"}
+it defaults to \code{NA}, which disables binarization and compares raw
+values for exact inequality instead.}
+\item{\code{regularize}}{(\code{method = "mahalanobis"}) ridge added to the
+diagonal of the covariance matrix before inversion, useful when it
+is singular or near-singular. Defaults to \code{0}.}
+\item{\code{weights}}{(\code{method = "standardized_euclidean"}) numeric
+vector with the per-feature scale used instead of the sample
+variance of \code{A} (its length must equal \code{ncol(A)}). Defaults to
+\code{NULL}, i.e. the sample variance of \code{A} is used.}
+\item{\code{cov}}{(\code{method = "mahalanobis"}) numeric matrix (\code{ncol(A)} x
+\code{ncol(A)}) with a precomputed covariance matrix used instead of the
+sample covariance of \code{A}. Defaults to \code{NULL}.}
+}}
 }
 \value{
 A numeric matrix where entry \verb{[i, j]} is the distance between row
